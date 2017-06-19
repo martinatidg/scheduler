@@ -1,0 +1,70 @@
+<settings>
+
+<mirrors>
+
+  <mirror>
+    <id>Nexus</id>
+    <name>Nexus Public Mirror </name>
+    <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url>
+    <mirrorOf>central</mirrorOf>
+</mirror>
+
+ <mirror>
+    <id>privateNexus</id>
+    <name>Nexus Private Mirror </name>
+    <url>http://vm-1143-5c12:8081/nexus/content/repositories</url>
+    <mirrorOf>central</mirrorOf>
+</mirror>
+</mirrors>
+
+
+<servers>
+    
+   <server>
+    <id>Snapshots</id>
+    <username>admin</username>
+    <password>uno!!123</password>
+  </server>
+   
+</servers>
+
+
+<profiles>
+ 
+  <profile>
+    <activation>
+          <activeByDefault>True</activeByDefault>
+    </activation>
+
+	<repositories>
+        <repository>
+            <id>central</id>
+                <name>citi central repository</name>
+                    <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url>
+    	</repository>
+	   
+	   <repository>
+            <releases>
+                 <enabled>true</enabled>
+                 <updatePolicy>always</updatePolicy>
+            </releases>         
+            <id>Releases</id>
+            <url>http://vm-1143-5c12:8081/nexus/content/repositories/releases/</url>
+       </repository>
+                   
+       <repository>   
+            <snapshots>
+                  <enabled>true</enabled>
+                  <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>Snapshots</id>
+            <url>http://vm-1143-5c12:8081/nexus/content/repositories/snapshots/</url>
+       </repository>
+
+    </repositories>
+
+  </profile>
+</profiles>
+
+
+</settings>
