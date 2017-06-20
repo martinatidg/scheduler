@@ -3,7 +3,7 @@ package com.citi.reghub.rds.scheduler.export;
 import java.time.LocalDateTime;
 
 /**
- * @author mr44753
+ * @author Michael Rootman	
  *
  */
 public class ExportRequest {
