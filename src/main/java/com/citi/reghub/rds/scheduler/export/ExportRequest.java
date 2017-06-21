@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
  */
 public class ExportRequest {
 
+	private String requestId;
 	private String hostname;
 	private int port;
 	private String database;
@@ -52,6 +53,14 @@ public class ExportRequest {
 
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public String getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
 	}
 
 }
