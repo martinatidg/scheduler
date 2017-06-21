@@ -1,7 +1,6 @@
 package com.citi.reghub.rds.scheduler.process;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class RuntimeProcess {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public void execute() throws ProcessException {
+	public RuntimeProcessResult execute() throws ProcessException {
 		if (this.processName == null || this.processName.isEmpty()) {
 			throw new IllegalArgumentException("Process name and arguments cannot be null or empty");
 		}
@@ -48,11 +47,10 @@ public class RuntimeProcess {
 			Process process = rt.exec(processName);
 
 			// get output streams
-			LOGGER.info("Starting StreaGobbller for {} output", StreamGobbler.OUTPUT_TYPE);
+			
 			out = new StreamGobbler(process.getInputStream(), StreamGobbler.OUTPUT_TYPE);
 			out.start();
 
-			LOGGER.info("Starting StreaGobbller for {} output", StreamGobbler.ERROR_TYPE);
 			err = new StreamGobbler(process.getErrorStream(), StreamGobbler.ERROR_TYPE);
 			err.start();
 
@@ -66,6 +64,17 @@ public class RuntimeProcess {
 			throw pe;
 		}
 
+		return buildResult();
+	}
+
+	private RuntimeProcessResult buildResult() {
+		RuntimeProcessResult result = new RuntimeProcessResult();
+
+		result.setCompleteSuccessfully(isSuccessfull());
+		result.setError(this.err.getContents());
+		result.setOutput(this.out.getContents());
+
+		return result;
 	}
 
 	/**
@@ -73,20 +82,7 @@ public class RuntimeProcess {
 	 * 
 	 * @return True if successful, otherwise False
 	 */
-	public boolean isSuccessfull() {
+	private boolean isSuccessfull() {
 		return exitVal == 0 ? true : false;
 	}
-
-	/**
-	 * Returns one of the process output streams
-	 * 
-	 * @param type
-	 *            either {@link StreamGobbler.OUTPUT_TYPE} or
-	 *            {@link StreamGobbler.ERROR_TYPE}
-	 * @return Collection of stream output data
-	 */
-	public List<String> getProcessOutput(String type) {
-		return StreamGobbler.ERROR_TYPE.equals(type) ? err.getContents() : out.getContents();
-	}
-
 }
