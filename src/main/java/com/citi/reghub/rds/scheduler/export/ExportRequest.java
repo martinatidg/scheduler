@@ -14,6 +14,8 @@ public class ExportRequest {
 	private String database;
 	private String collection;
 	private LocalDateTime lastTimeStamp;
+	private LocalDateTime fromTimeStamp;
+	private LocalDateTime toTimeStamp;
 
 	public String getDatabase() {
 		return database;
@@ -63,4 +65,19 @@ public class ExportRequest {
 		this.requestId = requestId;
 	}
 
+	public LocalDateTime getFromTimeStamp() {
+		return fromTimeStamp;
+	}
+
+	public void setFromTimeStamp(LocalDateTime fromTimeStamp) {
+		this.fromTimeStamp = fromTimeStamp;
+	}
+
+	public LocalDateTime getToTimeStamp() {
+		return toTimeStamp;
+	}
+
+	public void setToTimeStamp(LocalDateTime toTimeStamp) {
+		this.toTimeStamp = toTimeStamp;
+	}
 }

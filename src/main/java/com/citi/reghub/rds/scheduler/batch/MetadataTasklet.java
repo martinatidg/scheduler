@@ -13,6 +13,9 @@ public class MetadataTasklet implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		LOGGER.info("Step 1: Retrieve metadata.");
+
+		arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("value", "hello! from step 1.");
+
 		return RepeatStatus.FINISHED;
 	}
 

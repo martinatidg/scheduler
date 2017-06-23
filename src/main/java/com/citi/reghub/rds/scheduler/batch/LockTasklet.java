@@ -13,6 +13,10 @@ public class LockTasklet implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		LOGGER.info("Step 2: Obtain Lock.");
+
+		String value = (String) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("value");
+		LOGGER.info("Value passed from step 1: " + value);
+
 		return RepeatStatus.FINISHED;
 	}
 

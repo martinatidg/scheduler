@@ -50,7 +50,8 @@ public class MongoExport implements Callable<ExportResponse> {
 
 	@Override
 	public ExportResponse call() throws Exception {
-		String cmd = binaryPath + " " + getCommandLineKeys();
+//		String cmd = binaryPath + " " + getCommandLineKeys();
+		String cmd = binaryPath + " " + getLocalCommandLineKeys();
 
 		RuntimeProcess process = new RuntimeProcess(cmd);
 		RuntimeProcessResult result = process.execute();
@@ -105,6 +106,19 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
+	private String getLocalCommandLineKeys() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(keys.db + exportRequest.getDatabase());
+		sb.append(keys.collection + exportRequest.getCollection());
+		//sb.append(keys.query + createQueryBetween(exportRequest));
+		sb.append(keys.out + getOutputPath());
+
+		LOGGER.info("MongoExport command line: {}", sb.toString());
+
+		return sb.toString();
+	}
+
 	private String createQuery(ExportRequest er) {
 		StringBuilder sb = new StringBuilder();
 
@@ -112,6 +126,21 @@ public class MongoExport implements Callable<ExportResponse> {
 		sb.append(er.getLastTimeStamp());
 		sb.append("')},");
 		sb.append(" isRDSEligible : $eq : true} \" ");
+
+		return sb.toString();
+	}
+
+	private String createQueryBetween(ExportRequest er) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("\"{lastUpdatedTs : {");
+		sb.append("$gte : ISODate('");
+		sb.append(er.getFromTimeStamp());
+		sb.append("'), ");
+		sb.append("$lte : ISODate('");
+		sb.append(er.getToTimeStamp());
+		sb.append(")},");
+		sb.append(" isRDSEligible : $eq : true}\" ");
 
 		return sb.toString();
 	}
