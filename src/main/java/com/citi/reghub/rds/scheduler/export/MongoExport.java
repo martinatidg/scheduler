@@ -120,17 +120,6 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
-//	private String createQuery(ExportRequest er) {
-//		StringBuilder sb = new StringBuilder();
-//
-//		sb.append("\"{lastUpdatedTs : {$lte : ISODate('");
-//		sb.append(er.getLastTimeStamp().toLocalDate().toEpochDay());
-//		sb.append("')},");
-//		sb.append(" isRDSEligible : $eq : true} \" ");
-//
-//		return sb.toString();
-//	}
-
 	private String createQuery(ExportRequest er) {
 		StringBuilder sb = new StringBuilder();
 

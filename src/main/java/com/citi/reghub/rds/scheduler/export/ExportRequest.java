@@ -3,6 +3,8 @@ package com.citi.reghub.rds.scheduler.export;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
+import com.citi.reghub.rds.scheduler.util.Util;
+
 /**
  * @author Michael Rootman	
  *
@@ -82,4 +84,16 @@ public class ExportRequest {
 	public void setToTimeStamp(Calendar toTimeStamp) {
 		this.toTimeStamp = toTimeStamp;
 	}
+
+	@Override
+	public String toString() {
+		String lasttime = lastTimeStamp == null ? null : Util.formatDate(lastTimeStamp);
+		String fromtime = fromTimeStamp == null ? null : Util.formatDate(fromTimeStamp);
+		String totime = toTimeStamp == null ? null : Util.formatDate(toTimeStamp);
+
+		return "ExportRequest [requestId=" + requestId + ", hostname=" + hostname + ", port=" + port + ", database="
+				+ database + ", collection=" + collection + ", lastTimeStamp=" + lasttime + ", fromTimeStamp="
+				+ fromtime + ", toTimeStamp=" + totime + "]";
+	}
+
 }

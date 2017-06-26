@@ -26,33 +26,13 @@ public class MongoexportTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-
 		LOGGER.info("Step 3: Invoke mongoexport.");
-		ExportRequest er = new ExportRequest();
+		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("metadata");
+		
+		LOGGER.info("request at step 2: " + request);
 
-//		er.setHostname("maas-gt-d1-u0031");
-//		er.setPort(37017);
-//		er.setDatabase("entities-sit");
-//		er.setRequestId("J2");
-//		er.setCollection("entities");
-//		LocalDateTime fromTimeStamp = LocalDateTime.of(2017, 6, 20, 13, 0, 0, 0);
-//		LocalDateTime toTimeStamp = LocalDateTime.now();
+		ExportResponse exportResponse = exportService.submitRequest(request).get();
 
-		GregorianCalendar fromTimeStamp = new GregorianCalendar(2017, 5, 20, 13, 0, 0);	// month start from 0. So 5 is June.
-		showDate(fromTimeStamp, "fromTimeStamp");
-		GregorianCalendar toTimeStamp = new GregorianCalendar();
-		showDate(toTimeStamp, "toTimeStamp");
-
-		er.setHostname("localhost");
-		er.setPort(27017);
-		er.setDatabase("simulator");
-		er.setRequestId("J2");
-		er.setCollection("entities_rds");
-		er.setFromTimeStamp(fromTimeStamp);
-		er.setToTimeStamp(toTimeStamp);
-		er.setLastTimeStamp(toTimeStamp);
-
-		ExportResponse exportResponse = exportService.submitRequest(er).get();
 		LOGGER.info("mongoexport result:\n" + exportResponse);
 
 		arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("mongoRespone", exportResponse);
@@ -61,11 +41,5 @@ public class MongoexportTasklet implements Tasklet {
 
 	}
 
-	private void showDate(Calendar cal, String description) {
-		String pattern = "EEEEE MMMMM dd yyyy HH:mm:ss.SSSZ";
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("en", "US"));
-	
-		String date = simpleDateFormat.format(cal.getTime());
-		LOGGER.info(description + ": " + date);
-	}
+
 }

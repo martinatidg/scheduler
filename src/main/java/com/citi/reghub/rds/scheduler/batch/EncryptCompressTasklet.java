@@ -19,7 +19,7 @@ public class EncryptCompressTasklet implements Tasklet {
 		ExportResponse response = (ExportResponse) arg1.getStepContext().getStepExecution().getJobExecution()
 				.getExecutionContext().get("mongoRespone");
 
-		LOGGER.info("Step 4: parameter passed from previous step: " + response);
+		LOGGER.info("response at Step 4: " + response);
 
 		return RepeatStatus.FINISHED;
 	}
