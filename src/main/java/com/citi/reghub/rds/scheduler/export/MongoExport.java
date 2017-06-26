@@ -111,7 +111,8 @@ public class MongoExport implements Callable<ExportResponse> {
 
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		//sb.append(keys.query + createQueryBetween(exportRequest));
+		sb.append(keys.query + createQueryBetween(exportRequest));
+//		sb.append(keys.query + createQuery(exportRequest));
 		sb.append(keys.out + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
@@ -119,13 +120,24 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
+//	private String createQuery(ExportRequest er) {
+//		StringBuilder sb = new StringBuilder();
+//
+//		sb.append("\"{lastUpdatedTs : {$lte : ISODate('");
+//		sb.append(er.getLastTimeStamp().toLocalDate().toEpochDay());
+//		sb.append("')},");
+//		sb.append(" isRDSEligible : $eq : true} \" ");
+//
+//		return sb.toString();
+//	}
+
 	private String createQuery(ExportRequest er) {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("\"{lastUpdatedTs : {$gte : ISODate('");
-		sb.append(er.getLastTimeStamp());
-		sb.append("')},");
-		sb.append(" isRDSEligible : $eq : true} \" ");
+		sb.append("\"{lastUpdatedTs : {$lte : new Date(");
+		sb.append(er.getLastTimeStamp().getTimeInMillis());
+		sb.append(")},");
+		sb.append(" isRDSEligible : true} \" ");
 
 		return sb.toString();
 	}
@@ -134,13 +146,13 @@ public class MongoExport implements Callable<ExportResponse> {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("\"{lastUpdatedTs : {");
-		sb.append("$gte : ISODate('");
-		sb.append(er.getFromTimeStamp());
-		sb.append("'), ");
-		sb.append("$lte : ISODate('");
-		sb.append(er.getToTimeStamp());
+		sb.append("$gte : new Date(");
+		sb.append(er.getFromTimeStamp().getTimeInMillis());
+		sb.append("), ");
+		sb.append("$lte : new Date(");
+		sb.append(er.getToTimeStamp().getTimeInMillis());
 		sb.append(")},");
-		sb.append(" isRDSEligible : $eq : true}\" ");
+		sb.append(" isRDSEligible : true}\" ");
 
 		return sb.toString();
 	}

@@ -1,6 +1,7 @@
 package com.citi.reghub.rds.scheduler.export;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
 
 /**
  * @author Michael Rootman	
@@ -13,9 +14,10 @@ public class ExportRequest {
 	private int port;
 	private String database;
 	private String collection;
-	private LocalDateTime lastTimeStamp;
-	private LocalDateTime fromTimeStamp;
-	private LocalDateTime toTimeStamp;
+
+	private Calendar lastTimeStamp;
+	private Calendar fromTimeStamp;
+	private Calendar toTimeStamp;
 
 	public String getDatabase() {
 		return database;
@@ -33,11 +35,11 @@ public class ExportRequest {
 		this.collection = collection;
 	}
 
-	public LocalDateTime getLastTimeStamp() {
+	public Calendar getLastTimeStamp() {
 		return lastTimeStamp;
 	}
 
-	public void setLastTimeStamp(LocalDateTime lastTimeStamp) {
+	public void setLastTimeStamp(Calendar lastTimeStamp) {
 		this.lastTimeStamp = lastTimeStamp;
 	}
 
@@ -65,19 +67,19 @@ public class ExportRequest {
 		this.requestId = requestId;
 	}
 
-	public LocalDateTime getFromTimeStamp() {
+	public Calendar getFromTimeStamp() {
 		return fromTimeStamp;
 	}
 
-	public void setFromTimeStamp(LocalDateTime fromTimeStamp) {
+	public void setFromTimeStamp(Calendar fromTimeStamp) {
 		this.fromTimeStamp = fromTimeStamp;
 	}
 
-	public LocalDateTime getToTimeStamp() {
+	public Calendar getToTimeStamp() {
 		return toTimeStamp;
 	}
 
-	public void setToTimeStamp(LocalDateTime toTimeStamp) {
+	public void setToTimeStamp(Calendar toTimeStamp) {
 		this.toTimeStamp = toTimeStamp;
 	}
 }
