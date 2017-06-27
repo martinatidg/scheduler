@@ -42,7 +42,7 @@ public class RdsSchedulerConfiguration {
 		return taskExecutor;
 	}
 
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 60000)
 	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		++launchCount;
