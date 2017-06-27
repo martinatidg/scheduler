@@ -10,6 +10,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import com.citi.reghub.rds.scheduler.batch.EncryptCompressTasklet;
 import com.citi.reghub.rds.scheduler.batch.HdfsTasklet;
@@ -20,6 +21,7 @@ import com.citi.reghub.rds.scheduler.batch.UnlockTasklet;
 
 @Configuration
 @EnableBatchProcessing
+@PropertySource("classpath:batch.properties")	// disable/enable batch auto start
 public class RdsBatchConfiguration {
 
 	@Autowired

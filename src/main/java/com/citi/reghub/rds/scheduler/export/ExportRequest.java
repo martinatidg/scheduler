@@ -1,6 +1,5 @@
 package com.citi.reghub.rds.scheduler.export;
 
-import java.time.LocalDateTime;
 import java.util.Calendar;
 
 import com.citi.reghub.rds.scheduler.util.Util;
