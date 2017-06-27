@@ -24,10 +24,7 @@ public class ZooKeeper {
 	}
 	@Override
 	public String toString() {
-		String fromtime = fromTimestamp == null ? null : Util.formatDate(fromTimestamp);
-		String totime = toTimestamp == null ? null : Util.formatDate(toTimestamp);
-
-		return "ZooKeeper [fromTimestamp=" + fromtime + ", toTimeStamp=" + totime + "]";
+		return "ZooKeeper [fromTimestamp=" + Util.formatDate(fromTimestamp) + ", toTimeStamp=" + Util.formatDate(toTimestamp) + "]";
 	}
 
 }

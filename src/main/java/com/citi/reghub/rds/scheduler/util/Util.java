@@ -6,6 +6,10 @@ import java.util.Locale;
 
 public class Util {
 	public static String formatDate(Calendar cal, String pattern) {
+		if (cal == null) {
+			return null;
+		}
+
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("en", "US"));
 		return simpleDateFormat.format(cal.getTime());
 	}
