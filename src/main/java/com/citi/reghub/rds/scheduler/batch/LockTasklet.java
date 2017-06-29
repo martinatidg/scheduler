@@ -9,7 +9,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
-import com.citi.reghub.rds.scheduler.util.ZooKeeper;
+import com.citi.reghub.rds.scheduler.service.ZooKeeper;
 
 public class LockTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LockTasklet.class);

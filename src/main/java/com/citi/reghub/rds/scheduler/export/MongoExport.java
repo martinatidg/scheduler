@@ -1,5 +1,6 @@
 package com.citi.reghub.rds.scheduler.export;
 
+import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class MongoExport implements Callable<ExportResponse> {
 	private ExportRequest exportRequest;
 
 	enum keys {
-		host, port, ssl, sslAllowInvalidCertificates, authenticationDatabase, authenticationMechanism, db, collection, query, jsonArray, out, username, password;
+		host, port, ssl, sslAllowInvalidCertificates, authenticationDatabase, authenticationMechanism, db, collection, query, jsonArray, out, username, password, limit;
 
 		@Override
 		public String toString() {
@@ -51,18 +52,29 @@ public class MongoExport implements Callable<ExportResponse> {
 	@Override
 	public ExportResponse call() throws Exception {
 //		String cmd = binaryPath + " " + getCommandLineKeys();
-		String cmd = binaryPath + " " + getLocalCommandLineKeys();
+		String cmd = binaryPath + " " + getLocalCommandLineKeys(false);
 
 		RuntimeProcess process = new RuntimeProcess(cmd);
 		RuntimeProcessResult result = process.execute();
 
-		return buildResponse(result);
+		return buildResponse(result, false);
 	}
 
-	private ExportResponse buildResponse(RuntimeProcessResult result) {
-		ExportResponse response = new ExportResponse();
+	public ExportResponse validateMongoDB() throws Exception {
+//		String cmd = binaryPath + " " + getCommandLineKeys();
+		String cmd = binaryPath + " " + getLocalCommandLineKeys(true);
 
-		response.setExportPath(getOutputPath());
+		RuntimeProcess process = new RuntimeProcess(cmd);
+		RuntimeProcessResult result = process.execute();
+
+		return buildResponse(result, true);
+	}
+
+	private ExportResponse buildResponse(RuntimeProcessResult result, boolean validate) {
+		ExportResponse response = new ExportResponse();
+		Collection<String> errors = result.getError();
+
+		response.setExportPath(getOutputPath(validate));
 		response.setSuccessful(result.isCompleteSuccessfully());
 		response.setLastMessage(result.getError().stream().skip(result.getError().size() - 1).findFirst().orElse("--"));
 
@@ -81,7 +93,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		}
 	}
 
-	private String getCommandLineKeys() {
+	private String getCommandLineKeys(boolean validate) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(keys.host + exportRequest.getHostname());
@@ -94,9 +106,15 @@ public class MongoExport implements Callable<ExportResponse> {
 		//
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		// sb.append(keys.query + createQuery(exportRequest));
+		if (validate) {
+			sb.append(keys.limit + "1");
+		}
+		else {
+			sb.append(keys.query + createQueryBetween(exportRequest));
+//			sb.append(keys.query + createQuery(exportRequest));
+		}
 		sb.append(keys.jsonArray);
-		sb.append(keys.out + getOutputPath());
+		sb.append(keys.out + getOutputPath(validate));
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -106,14 +124,19 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
-	private String getLocalCommandLineKeys() {
+	private String getLocalCommandLineKeys(boolean validate) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		sb.append(keys.query + createQueryBetween(exportRequest));
-//		sb.append(keys.query + createQuery(exportRequest));
-		sb.append(keys.out + getOutputPath());
+		if (validate) {
+			sb.append(keys.limit + "1");
+		}
+		else {
+			sb.append(keys.query + createQueryBetween(exportRequest));
+//			sb.append(keys.query + createQuery(exportRequest));
+		}
+		sb.append(keys.out + getOutputPath(validate));
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -146,9 +169,16 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
-	private String getOutputPath() {
-		return this.outputPath + exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "."
-				+ exportRequest.getCollection();
+	private String getOutputPath(boolean validate) {
+		String outpath = this.outputPath;
+		if (validate) {
+			outpath += "validation";
+		}
+		else {
+			outpath += exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
+		}
+
+		return outpath;
 	}
 
 	private static boolean isLinux() {

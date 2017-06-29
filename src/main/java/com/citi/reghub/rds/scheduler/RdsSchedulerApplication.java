@@ -12,4 +12,5 @@ public class RdsSchedulerApplication {
 		SpringApplication.run(RdsSchedulerApplication.class, args);
 	}
 
+	
 }

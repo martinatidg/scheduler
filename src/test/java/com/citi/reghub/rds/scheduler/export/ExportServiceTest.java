@@ -23,15 +23,15 @@ public class ExportServiceTest {
 	public void testExport() throws InterruptedException, ExecutionException {
 		ExportRequest er = new ExportRequest();
 
-		er.setHostname("maas-gt-d1-u0031");
-		er.setPort(37017);
-		er.setDatabase("entities-sit");
-		er.setRequestId("J2");
-		er.setCollection("entities");
-
-		ExportResponse exportResponse = exportService.submitRequest(er).get();
-
-		System.out.println(exportResponse);
+//		er.setHostname("maas-gt-d1-u0031");
+//		er.setPort(37017);
+//		er.setDatabase("entities-sit");
+//		er.setRequestId("J2");
+//		er.setCollection("entities");
+//
+//		ExportResponse exportResponse = exportService.submitRequest(er).get();
+//
+//		System.out.println(exportResponse);
 	}
 
 }

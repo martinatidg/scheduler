@@ -1,12 +1,5 @@
 package com.citi.reghub.rds.scheduler.batch;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepContribution;
@@ -32,6 +25,11 @@ public class MongoexportTasklet implements Tasklet {
 		LOGGER.info("request at step 2: " + request);
 
 		ExportResponse exportResponse = exportService.submitRequest(request).get();
+		
+		if (!exportResponse.isSuccessful()) {
+			LOGGER.error(exportResponse.getLastMessage());
+			return RepeatStatus.FINISHED;
+		}
 
 		LOGGER.info("mongoexport result:\n" + exportResponse);
 
