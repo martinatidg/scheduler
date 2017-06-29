@@ -38,8 +38,6 @@ public class MetadataTasklet implements Tasklet {
 
 		request.setDatabase(meta.getDatabase());
 		request.setCollection(meta.getCollection());
-		
-		request.setValidation(false);
 
 		LOGGER.info("request at step 1:\n" + request);
 		

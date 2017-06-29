@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
 import com.citi.reghub.rds.scheduler.export.ExportService;
-import com.citi.reghub.rds.scheduler.export.MongoExport;
 /**
  * @author Martin Tan
  *
@@ -30,16 +31,18 @@ public class InitializationService {
 	private MetadataService metadata;
 	@Autowired
 	private ExportService exportService;
-//	private MongoExport mongoExport;
-	
+
 	@Value("${rds.scheduler.mongo.binaryPath}")
 	private String binaryPath;
+	
 	@Value("${rds.scheduler.export.outputpath}")
 	private String outputDir;
+	
 	@Value("${rds.scheduler.mongo.host}")
 	private String host;
 	@Value("${rds.scheduler.mongo.port}")
 	private int port;
+	
 
 	private Path outputPath;
 
@@ -51,16 +54,22 @@ public class InitializationService {
 	public boolean validateOutputPath() {
 		if (outputDir == null || outputDir.isEmpty()) {
 			outputPath = Paths.get(DEFAULT_OUTPUT);
+			System.setProperty("rds.scheduler.export.outputpath", DEFAULT_OUTPUT);
 		}
 		else {
 			outputPath = Paths.get(outputDir);
+		}
+
+		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
+			error = "Output path is not accessible.";
+			return false;
 		}
 
 		if (!exists(outputPath)) {
 			try {
 				createDirectory(outputPath);
 			} catch (IOException e) {
-				error = "Output path is not accessible. error: " + e.getMessage();
+				error = outputPath.toString() + " cannot be created: " + e.getMessage();
 				validated = false;
 				return false;
 			}
@@ -80,9 +89,14 @@ public class InitializationService {
 
 			request.setDatabase(metadata.getDatabase());
 			request.setCollection(metadata.getCollection());
-			request.setValidation(true);
+			request.setLimit(1);
 
-//			mongoExport.setRequest(request);
+			Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
+			Calendar toTimestamp = new GregorianCalendar();
+
+			request.setFromTimeStamp(fromTimestamp);
+			request.setToTimeStamp(toTimestamp);
+
 			response = exportService.submitRequest(request).get();
 		} catch (Exception e) {
 			error = "MongoDB DB is not available or not working. error: " + (response == null? "" : response.getLastMessage());

@@ -1,6 +1,5 @@
 package com.citi.reghub.rds.scheduler.export;
 
-import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import com.citi.reghub.rds.scheduler.process.RuntimeProcessResult;
 @Scope("prototype")
 public class MongoExport implements Callable<ExportResponse> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoExport.class);
-//	boolean validate = false;	// if the call for validation or normal job launch
 
 	private static String osKeyPrefix = isLinux() ? " --" : " /";
 	@Value("${rds.scheduler.mongo.binaryPath}")
@@ -63,7 +61,6 @@ public class MongoExport implements Callable<ExportResponse> {
 
 	private ExportResponse buildResponse(RuntimeProcessResult result) {
 		ExportResponse response = new ExportResponse();
-		Collection<String> errors = result.getError();
 
 		response.setExportPath(getOutputPath());
 		response.setSuccessful(result.isCompleteSuccessfully());
@@ -97,13 +94,12 @@ public class MongoExport implements Callable<ExportResponse> {
 		//
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		if (exportRequest.isValidation()) {
-			sb.append(keys.limit + "1");
+		if (exportRequest.getLimit() > 0) {
+			sb.append(keys.limit + "" + exportRequest.getLimit());
 		}
-		else {
-			sb.append(keys.query + createQueryBetween(exportRequest));
+		sb.append(keys.query + createQueryBetween(exportRequest));
 //			sb.append(keys.query + createQuery(exportRequest));
-		}
+
 		sb.append(keys.jsonArray);
 		sb.append(keys.out + getOutputPath());
 
@@ -120,13 +116,11 @@ public class MongoExport implements Callable<ExportResponse> {
 
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		if (exportRequest.isValidation()) {
-			sb.append(keys.limit + "1");
+		if (exportRequest.getLimit() > 0) {
+			sb.append(keys.limit + " " + exportRequest.getLimit());
 		}
-		else {
-			sb.append(keys.query + createQueryBetween(exportRequest));
+		sb.append(keys.query + createQueryBetween(exportRequest));
 //			sb.append(keys.query + createQuery(exportRequest));
-		}
 		sb.append(keys.out + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
@@ -161,15 +155,7 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private String getOutputPath() {
-		String outpath = this.outputPath;
-		if (exportRequest.isValidation()) {
-			outpath += "validation";
-		}
-		else {
-			outpath += exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
-		}
-
-		return outpath;
+		return this.outputPath + exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
 	}
 
 	private static boolean isLinux() {

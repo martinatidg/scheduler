@@ -20,14 +20,14 @@ public class ExportRequest {
 	private Calendar fromTimeStamp;
 	private Calendar toTimeStamp;
 
-	private boolean validation;	// if the request for validation or job launch
+	private int limit;
 
-	public boolean isValidation() {
-		return validation;
+	public int getLimit() {
+		return limit;
 	}
 
-	public void setValidation(boolean validation) {
-		this.validation = validation;
+	public void setLimit(int limit) {
+		this.limit = limit;
 	}
 
 	public String getDatabase() {
