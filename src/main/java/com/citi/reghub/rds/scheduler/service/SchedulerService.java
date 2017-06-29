@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 
 @Service
-@EnableScheduling
 public class SchedulerService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RdsSchedulerConfiguration.class);
 	private int launchCount = 0;
@@ -31,12 +30,12 @@ public class SchedulerService {
 	private Job rdsBackupJob;
 	
 	@Autowired
-	private InitializationService validateService;
+	private InitializationService initializationService;
 
 	@Scheduled(fixedRate = 10000)
 	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
-		if (!validateService.isValidated()) {
+		if (!initializationService.isValidated()) {
 			LOGGER.info("launch job " + launchCount + ": not validated. waiting for validation.");
 			return;
 		}
