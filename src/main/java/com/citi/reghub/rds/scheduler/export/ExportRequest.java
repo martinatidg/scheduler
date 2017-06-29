@@ -20,6 +20,16 @@ public class ExportRequest {
 	private Calendar fromTimeStamp;
 	private Calendar toTimeStamp;
 
+	private boolean validation;	// if the request for validation or job launch
+
+	public boolean isValidation() {
+		return validation;
+	}
+
+	public void setValidation(boolean validation) {
+		this.validation = validation;
+	}
+
 	public String getDatabase() {
 		return database;
 	}

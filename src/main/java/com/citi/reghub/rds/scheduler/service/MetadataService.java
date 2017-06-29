@@ -1,15 +1,13 @@
 package com.citi.reghub.rds.scheduler.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Martin Tan
+ *
+ */
 @Service
 public class MetadataService {
 //	@Resource

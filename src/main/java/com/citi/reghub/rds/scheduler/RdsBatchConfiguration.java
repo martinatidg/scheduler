@@ -1,5 +1,7 @@
 package com.citi.reghub.rds.scheduler;
 
+import javax.sql.DataSource;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import com.citi.reghub.rds.scheduler.batch.EncryptCompressTasklet;
 import com.citi.reghub.rds.scheduler.batch.HdfsTasklet;
@@ -21,14 +25,19 @@ import com.citi.reghub.rds.scheduler.batch.UnlockTasklet;
 
 @Configuration
 @EnableBatchProcessing
-@PropertySource("classpath:batch.properties")	// disable/enable batch auto start
+@PropertySource("classpath:application.properties")	// disable/enable batch auto start
 public class RdsBatchConfiguration {
-
 	@Autowired
 	public JobBuilderFactory jobBuilderFactory;
 
 	@Autowired
 	public StepBuilderFactory stepBuilderFactory;
+
+	@Bean
+	public DataSource dataSource() {
+		return new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.DERBY)
+				.setScriptEncoding("UTF-8").build();
+	}
 
 	@Bean
 	public Tasklet metadataTasklet() {

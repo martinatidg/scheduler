@@ -28,7 +28,8 @@ public class MongoexportTasklet implements Tasklet {
 		
 		if (!exportResponse.isSuccessful()) {
 			LOGGER.error(exportResponse.getLastMessage());
-			return RepeatStatus.FINISHED;
+			System.exit(-1);	// the job restart may be handled here
+			//return null;
 		}
 
 		LOGGER.info("mongoexport result:\n" + exportResponse);

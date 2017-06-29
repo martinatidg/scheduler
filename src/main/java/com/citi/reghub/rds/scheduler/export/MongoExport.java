@@ -23,6 +23,7 @@ import com.citi.reghub.rds.scheduler.process.RuntimeProcessResult;
 @Scope("prototype")
 public class MongoExport implements Callable<ExportResponse> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoExport.class);
+//	boolean validate = false;	// if the call for validation or normal job launch
 
 	private static String osKeyPrefix = isLinux() ? " --" : " /";
 	@Value("${rds.scheduler.mongo.binaryPath}")
@@ -52,29 +53,19 @@ public class MongoExport implements Callable<ExportResponse> {
 	@Override
 	public ExportResponse call() throws Exception {
 //		String cmd = binaryPath + " " + getCommandLineKeys();
-		String cmd = binaryPath + " " + getLocalCommandLineKeys(false);
+		String cmd = binaryPath + " " + getLocalCommandLineKeys();
 
 		RuntimeProcess process = new RuntimeProcess(cmd);
 		RuntimeProcessResult result = process.execute();
 
-		return buildResponse(result, false);
+		return buildResponse(result);
 	}
 
-	public ExportResponse validateMongoDB() throws Exception {
-//		String cmd = binaryPath + " " + getCommandLineKeys();
-		String cmd = binaryPath + " " + getLocalCommandLineKeys(true);
-
-		RuntimeProcess process = new RuntimeProcess(cmd);
-		RuntimeProcessResult result = process.execute();
-
-		return buildResponse(result, true);
-	}
-
-	private ExportResponse buildResponse(RuntimeProcessResult result, boolean validate) {
+	private ExportResponse buildResponse(RuntimeProcessResult result) {
 		ExportResponse response = new ExportResponse();
 		Collection<String> errors = result.getError();
 
-		response.setExportPath(getOutputPath(validate));
+		response.setExportPath(getOutputPath());
 		response.setSuccessful(result.isCompleteSuccessfully());
 		response.setLastMessage(result.getError().stream().skip(result.getError().size() - 1).findFirst().orElse("--"));
 
@@ -93,7 +84,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		}
 	}
 
-	private String getCommandLineKeys(boolean validate) {
+	private String getCommandLineKeys() {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(keys.host + exportRequest.getHostname());
@@ -106,7 +97,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		//
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		if (validate) {
+		if (exportRequest.isValidation()) {
 			sb.append(keys.limit + "1");
 		}
 		else {
@@ -114,7 +105,7 @@ public class MongoExport implements Callable<ExportResponse> {
 //			sb.append(keys.query + createQuery(exportRequest));
 		}
 		sb.append(keys.jsonArray);
-		sb.append(keys.out + getOutputPath(validate));
+		sb.append(keys.out + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -124,19 +115,19 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
-	private String getLocalCommandLineKeys(boolean validate) {
+	private String getLocalCommandLineKeys() {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
-		if (validate) {
+		if (exportRequest.isValidation()) {
 			sb.append(keys.limit + "1");
 		}
 		else {
 			sb.append(keys.query + createQueryBetween(exportRequest));
 //			sb.append(keys.query + createQuery(exportRequest));
 		}
-		sb.append(keys.out + getOutputPath(validate));
+		sb.append(keys.out + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -169,9 +160,9 @@ public class MongoExport implements Callable<ExportResponse> {
 		return sb.toString();
 	}
 
-	private String getOutputPath(boolean validate) {
+	private String getOutputPath() {
 		String outpath = this.outputPath;
-		if (validate) {
+		if (exportRequest.isValidation()) {
 			outpath += "validation";
 		}
 		else {

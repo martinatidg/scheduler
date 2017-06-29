@@ -9,13 +9,13 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
-import com.citi.reghub.rds.scheduler.service.ZooKeeper;
+import com.citi.reghub.rds.scheduler.service.ZooKeeperService;
 
 public class UnlockTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UnlockTasklet.class);
 
 	@Autowired
-	private ZooKeeper keeper;
+	private ZooKeeperService keeper;
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {

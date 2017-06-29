@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.citi.reghub.rds.scheduler.util.Util;
 
 @Service
-public class ZooKeeper {
+public class ZooKeeperService {
 	private Calendar fromTimestamp = new GregorianCalendar(2017, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
 	private Calendar toTimestamp; // = new GregorianCalendar();
 

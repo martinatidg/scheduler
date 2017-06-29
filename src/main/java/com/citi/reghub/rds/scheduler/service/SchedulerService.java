@@ -1,4 +1,4 @@
-package com.citi.reghub.rds.scheduler;
+package com.citi.reghub.rds.scheduler.service;
 
 import java.util.Date;
 
@@ -16,11 +16,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.citi.reghub.rds.scheduler.service.ValidateService;
+import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 
 @Service
 @EnableScheduling
-public class RdsJobLauncher {
+public class SchedulerService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RdsSchedulerConfiguration.class);
 	private int launchCount = 0;
 
@@ -31,9 +31,9 @@ public class RdsJobLauncher {
 	private Job rdsBackupJob;
 	
 	@Autowired
-	private ValidateService validateService;
+	private InitializationService validateService;
 
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 10000)
 	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		if (!validateService.isValidated()) {
