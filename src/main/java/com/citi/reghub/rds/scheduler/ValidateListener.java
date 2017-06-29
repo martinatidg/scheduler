@@ -32,8 +32,8 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		}
 		LOGGER.info("ValidateListener -- output path validated.");
 
-		validated = service.validateMongoDB();
 		LOGGER.info("ValidateListener -- validating MongoDB ..........");
+		validated = service.validateMongoDB();
 
 		if (!validated) {
 			LOGGER.info("ValidateListener -- MongoDB validating failed: " + service.getError());
