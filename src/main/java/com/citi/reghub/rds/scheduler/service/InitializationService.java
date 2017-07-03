@@ -64,6 +64,7 @@ public class InitializationService {
 
 		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
 			error = "Output path is not accessible.";
+//			validated = false;
 			return false;
 		}
 
@@ -72,7 +73,7 @@ public class InitializationService {
 				createDirectory(outputPath);
 			} catch (IOException e) {
 				error = outputPath.toString() + " cannot be created: " + e.getMessage();
-				validated = false;
+//				validated = false;
 				return false;
 			}
 		}
@@ -85,6 +86,7 @@ public class InitializationService {
 	// If any one of them validated, then the validation will pass. 
 	// For those validation failed, it will be logged.
 	public boolean validateMongoDBs() {
+		validated = false;
 		Map<String, List<String>> databases = metadataService.getDatabases();
 		System.out.println("InitializationService.validateMongoDB(): databases" + databases);
 		for (String db : databases.keySet()) {
@@ -100,7 +102,8 @@ public class InitializationService {
 
 	// validate if the mongoDB is available and the mongoexport works
 	public boolean validateMongoDB() {
-		return validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
+		validated = validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
+		return validated;
 	}
 
 	private boolean validateOneMongoDB(String db, String collection) {
