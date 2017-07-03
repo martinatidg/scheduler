@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
 public class Util {
 	public static String formatDate(Calendar cal, String pattern) {
 		if (cal == null) {

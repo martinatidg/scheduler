@@ -27,7 +27,8 @@ import com.citi.reghub.rds.scheduler.export.ExportService;
 @Service
 public class InitializationService {
 	// default output name, used when the user set output path is empty.
-    private static final String DEFAULT_OUTPUT = System.getProperty("java.io.tmpdir") + File.separator + "rds";
+    //private static final String DEFAULT_OUTPUT = System.getProperty("java.io.tmpdir") + File.separator + "rds";
+    private static final String DEFAULT_OUTPUT = System.getProperty("user.home") + File.separator + "rds";
 
     @Autowired
 	private MetadataService metadataService;
@@ -62,12 +63,6 @@ public class InitializationService {
 			outputPath = Paths.get(outputDir);
 		}
 
-		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
-			error = "Output path is not accessible.";
-//			validated = false;
-			return false;
-		}
-
 		if (!exists(outputPath)) {
 			try {
 				createDirectory(outputPath);
@@ -76,6 +71,11 @@ public class InitializationService {
 //				validated = false;
 				return false;
 			}
+		}
+
+		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
+			error = "Output path is not accessible.";
+			return false;
 		}
 
 		return true;
@@ -88,10 +88,10 @@ public class InitializationService {
 	public boolean validateMongoDBs() {
 		validated = false;
 		Map<String, List<String>> databases = metadataService.getDatabases();
-		System.out.println("InitializationService.validateMongoDB(): databases" + databases);
-		for (String db : databases.keySet()) {
-			for (String collection : databases.get(db)) {
-				if (validateOneMongoDB(db, collection)) {
+
+		for (Map.Entry<String, List<String>> db : databases.entrySet()) {
+			for (String collection : db.getValue()) {
+				if (validateOneMongoDB(db.getKey(), collection)) {
 					validated = true;	// if any passed, then the validation succeeds.
 				}
 			}
