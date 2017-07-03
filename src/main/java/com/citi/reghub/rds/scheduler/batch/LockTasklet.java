@@ -14,18 +14,18 @@ import com.citi.reghub.rds.scheduler.service.ZooKeeperService;
 public class LockTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LockTasklet.class);
 	@Autowired
-	ZooKeeperService zooKeeper;
+	ZooKeeperService zooKeeperService;
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
 		LOGGER.info("Step 2: Obtain Lock.");
 
 		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("metadata");
-		request.setFromTimeStamp(zooKeeper.getFromTimestamp());
-		request.setToTimeStamp(zooKeeper.getToTimeStamp());
+		request.setFromTimeStamp(zooKeeperService.getFromTimestamp());
+		request.setToTimeStamp(zooKeeperService.getToTimeStamp());
 		
 		LOGGER.info("request at step 2:\n" + request);
-		LOGGER.info("ZooKeeper at step 2:\n" +zooKeeper);
+		LOGGER.info("ZooKeeperService at step 2:\n" + zooKeeperService);
 
 
 		return RepeatStatus.FINISHED;

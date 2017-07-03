@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +27,10 @@ import com.citi.reghub.rds.scheduler.export.ExportService;
 @Service
 public class InitializationService {
 	// default output name, used when the user set output path is empty.
-    private static final String DEFAULT_OUTPUT = System.getProperty("user.home") + File.separator + "rds";
+    private static final String DEFAULT_OUTPUT = System.getProperty("java.io.tmpdir") + File.separator + "rds";
 
     @Autowired
-	private MetadataService metadata;
+	private MetadataService metadataService;
 	@Autowired
 	private ExportService exportService;
 
@@ -78,17 +80,41 @@ public class InitializationService {
 		return true;
 	}
 
+	// validate if the mongoDB is available and the mongoexport works.
+	// It will test against a list of databases and the associated collections.
+	// If any one of them validated, then the validation will pass. 
+	// For those validation failed, it will be logged.
+	public boolean validateMongoDBs() {
+		Map<String, List<String>> databases = metadataService.getDatabases();
+		System.out.println("InitializationService.validateMongoDB(): databases" + databases);
+		for (String db : databases.keySet()) {
+			for (String collection : databases.get(db)) {
+				if (validateOneMongoDB(db, collection)) {
+					validated = true;	// if any passed, then the validation succeeds.
+				}
+			}
+		}
+
+		return validated;
+	}
+
 	// validate if the mongoDB is available and the mongoexport works
 	public boolean validateMongoDB() {
+		return validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
+	}
+
+	private boolean validateOneMongoDB(String db, String collection) {
+		boolean passed = false;
 		ExportResponse response = null;
+
 		try {
 			ExportRequest request = new ExportRequest();
 			request.setRequestId("validate");
 			request.setHostname(host);
 			request.setPort(port);
 
-			request.setDatabase(metadata.getDatabase());
-			request.setCollection(metadata.getCollection());
+			request.setDatabase(db);
+			request.setCollection(collection);
 			request.setLimit(1);
 
 			Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
@@ -99,15 +125,15 @@ public class InitializationService {
 
 			response = exportService.submitRequest(request).get();
 		} catch (Exception e) {
-			error = "MongoDB DB is not available or not working. error: " + (response == null? "" : response.getLastMessage());
-			validated = false;
+			error = "Collection " + collection + " of database " + db + " is not available or the database is not working. Error message: " 
+						+ (response == null? "" : response.getLastMessage() + ", ") + e.getMessage();
 			return false;
 		}
 
 		if (response != null) {
-			validated = response.isSuccessful();
+			passed = response.isSuccessful();
 		}
-		return validated;
+		return passed;
 	}
 
 	public boolean isValidated() {

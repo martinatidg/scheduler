@@ -36,7 +36,7 @@ public class SchedulerService {
 	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		if (!initializationService.isValidated()) {
-			LOGGER.info("launch job " + launchCount + ": not validated. waiting for validation.");
+			LOGGER.info("launch job " + launchCount + ": not validated. waiting for initialization.");
 			return;
 		}
 
