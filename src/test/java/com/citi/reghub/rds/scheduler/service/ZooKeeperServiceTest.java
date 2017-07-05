@@ -15,7 +15,7 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Import(RdsSchedulerConfiguration.class)
-public class TestZooKeeperService {
+public class ZooKeeperServiceTest {
 	@Autowired
 	ZooKeeperService zookeeper;
 
@@ -27,7 +27,7 @@ public class TestZooKeeperService {
 	
 	@Test
 	public void testGetToTimestamp() {
-		Calendar calendar = null; //zookeeper.getToTimeStamp();
+		Calendar calendar = zookeeper.getToTimeStamp();
 		Assert.assertNotNull(calendar);
 	}
 }

@@ -16,7 +16,7 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Import(RdsSchedulerConfiguration.class)
-public class TestMetadataService {
+public class MetadataServiceTest {
 	@Autowired
 	MetadataService meta;
 

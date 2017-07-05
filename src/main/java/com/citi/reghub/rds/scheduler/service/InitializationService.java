@@ -6,11 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ import com.citi.reghub.rds.scheduler.export.ExportService;
 
 @Service
 public class InitializationService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
 	// default output name, used when the user set output path is empty.
     //private static final String DEFAULT_OUTPUT = System.getProperty("java.io.tmpdir") + File.separator + "rds";
     private static final String DEFAULT_OUTPUT = System.getProperty("user.home") + File.separator + "rds";
@@ -49,12 +53,12 @@ public class InitializationService {
 
 	private Path outputPath;
 
-	private String error;
+	private List<String> errors = new ArrayList<>();
 	
 	private boolean validated = false;
 
 	// validate the user provided output path. If it's not provided, the default folder will be used.
-	public boolean validateOutputPath() {
+	public void validateOutputPath() throws ValidationException {
 		if (outputDir == null || outputDir.isEmpty()) {
 			outputPath = Paths.get(DEFAULT_OUTPUT);
 			System.setProperty("rds.scheduler.export.outputpath", DEFAULT_OUTPUT);
@@ -67,76 +71,84 @@ public class InitializationService {
 			try {
 				createDirectory(outputPath);
 			} catch (IOException e) {
-				error = outputPath.toString() + " cannot be created: " + e.getMessage();
-//				validated = false;
-				return false;
+				throw new ValidationException(outputPath.toString() + " cannot be created: " + e.getMessage());
 			}
 		}
 
 		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
-			error = "Output path is not accessible.";
-			return false;
+			throw new ValidationException("Output path is not accessible.");
 		}
-
-		return true;
 	}
 
 	// validate if the mongoDB is available and the mongoexport works.
 	// It will test against a list of databases and the associated collections.
 	// If any one of them validated, then the validation will pass. 
 	// For those validation failed, it will be logged.
-	public boolean validateMongoDBs() {
+	public void validateMongoDBs() throws ValidationException {
+		ValidationException vex = new ValidationException();
+
 		validated = false;
 		Map<String, List<String>> databases = metadataService.getDatabases();
 
 		for (Map.Entry<String, List<String>> db : databases.entrySet()) {
 			for (String collection : db.getValue()) {
-				if (validateOneMongoDB(db.getKey(), collection)) {
-					validated = true;	// if any passed, then the validation succeeds.
+				try {
+					validateOneMongoDB(db.getKey(), collection);
+					validated = true;	// if no exception for any call of validateOneMongoDB,then the validation is passed.
+				} catch (Exception e) {
+					Exception ex = new Exception("Collection " + collection + " of database " + db + " is failed. Error message: " + e.getMessage());
+					vex.addSuppressed(ex);
+					LOGGER.info(ex.getMessage());
 				}
 			}
 		}
 
-		return validated;
+		if (!validated) {
+			throw vex;
+		}
 	}
 
 	// validate if the mongoDB is available and the mongoexport works
-	public boolean validateMongoDB() {
-		validated = validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
-		return validated;
+	public void validateMongoDB() throws ValidationException {
+		try {
+			validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
+			validated = true;	// if no exception, then validation passed.
+		} catch (Exception e) {
+			throw new ValidationException("Output path is not accessible.");
+		}
 	}
 
-	private boolean validateOneMongoDB(String db, String collection) {
+	private void validateOneMongoDB(String db, String collection) throws Exception {
 		boolean passed = false;
 		ExportResponse response = null;
 
-		try {
-			ExportRequest request = new ExportRequest();
-			request.setRequestId("validate");
-			request.setHostname(host);
-			request.setPort(port);
+		ExportRequest request = new ExportRequest();
+		request.setRequestId("validate");
+		request.setHostname(host);
+		request.setPort(port);
 
-			request.setDatabase(db);
-			request.setCollection(collection);
-			request.setLimit(1);
+		request.setDatabase(db);
+		request.setCollection(collection);
+		request.setLimit(1);
 
-			Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
-			Calendar toTimestamp = new GregorianCalendar();
+		Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
+		Calendar toTimestamp = new GregorianCalendar();
 
-			request.setFromTimeStamp(fromTimestamp);
-			request.setToTimeStamp(toTimestamp);
+		request.setFromTimeStamp(fromTimestamp);
+		request.setToTimeStamp(toTimestamp);
 
-			response = exportService.submitRequest(request).get();
-		} catch (Exception e) {
-			error = "Collection " + collection + " of database " + db + " is not available or the database is not working. Error message: " 
-						+ (response == null? "" : response.getLastMessage() + ", ") + e.getMessage();
-			return false;
-		}
+		response = exportService.submitRequest(request).get();
 
 		if (response != null) {
 			passed = response.isSuccessful();
 		}
-		return passed;
+		else {
+			passed = false;
+		}
+
+		if (!passed) {
+			throw new Exception("ExportService failed.");
+		}
 	}
 
 	public boolean isValidated() {
@@ -145,10 +157,6 @@ public class InitializationService {
 
 	public String getOutputPath() {
 		return outputPath.toString();
-	}
-
-	public String getError() {
-		return error;
 	}
 
     private boolean exists(Path path) {
