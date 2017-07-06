@@ -2,12 +2,17 @@ package com.citi.reghub.rds.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.citi.reghub.rds.scheduler.service.InitializationService;
+import com.citi.reghub.rds.scheduler.service.SchedulerService;
 import com.citi.reghub.rds.scheduler.service.ValidationException;
 
 /**
@@ -21,6 +26,8 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 
 	@Autowired
 	private InitializationService service;
+	@Autowired
+	private SchedulerService schedulerService;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent arg0) {
@@ -45,5 +52,6 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		}
 
 		LOGGER.info("ValidateListener -- validating is successful.");
+		schedulerService.lauchJob();
 	}
 }

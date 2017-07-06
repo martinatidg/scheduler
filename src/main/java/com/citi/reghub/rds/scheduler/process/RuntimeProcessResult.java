@@ -3,7 +3,6 @@ package com.citi.reghub.rds.scheduler.process;
 import java.util.Collection;
 
 public class RuntimeProcessResult {
-
 	private boolean completeSuccessfully;
 	private Collection<String> output;
 	private Collection<String> error;
@@ -31,5 +30,4 @@ public class RuntimeProcessResult {
 	public void setError(Collection<String> error) {
 		this.error = error;
 	}
-
 }

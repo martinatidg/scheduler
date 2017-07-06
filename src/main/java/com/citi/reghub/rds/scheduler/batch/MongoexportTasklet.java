@@ -39,8 +39,5 @@ public class MongoexportTasklet implements Tasklet {
 		LOGGER.info("Step 3: Mongoexport tasklet was finished.");
 
 		return RepeatStatus.FINISHED;
-
 	}
-
-
 }

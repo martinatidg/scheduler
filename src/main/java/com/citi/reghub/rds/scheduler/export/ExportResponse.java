@@ -44,8 +44,4 @@ public class ExportResponse {
 		return "ExportResponse [successful=" + successful + ", records=" + records + ", lastMessage=" + lastMessage
 				+ ", exportPath=" + exportPath + "]";
 	}
-	
-	
-	
-
 }

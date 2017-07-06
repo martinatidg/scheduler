@@ -9,17 +9,14 @@ import com.citi.reghub.rds.scheduler.util.Util;
  *
  */
 public class ExportRequest {
-
 	private String requestId;
 	private String hostname;
 	private int port;
 	private String database;
 	private String collection;
-
 	private Calendar lastTimeStamp;
 	private Calendar fromTimeStamp;
 	private Calendar toTimeStamp;
-
 	private int limit;
 
 	public int getLimit() {
@@ -100,5 +97,4 @@ public class ExportRequest {
 				+ database + ", collection=" + collection + ", lastTimeStamp=" + Util.formatDate(lastTimeStamp) + ", fromTimeStamp="
 				+ Util.formatDate(fromTimeStamp) + ", toTimeStamp=" + Util.formatDate(toTimeStamp) + "]";
 	}
-
 }

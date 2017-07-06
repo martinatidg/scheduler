@@ -12,8 +12,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
@@ -28,22 +27,26 @@ public class SchedulerService {
 
 	@Autowired
 	private Job rdsBackupJob;
-	
+
 	@Autowired
-	private InitializationService initializationService;
+	private TaskScheduler taskScheduler;
 
-	@Scheduled(fixedRate = 10000)
-	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
-			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
-		if (!initializationService.isValidated()) {
-			LOGGER.info("Waiting for initialization to launch job {}.", launchCount);
-			return;
-		}
+	public void lauchJob() {
+		LOGGER.info("Start scheduler");
+		taskScheduler.scheduleAtFixedRate(new Runnable() {
+			public void run() {
+				LOGGER.info("Launch job {} ......", launchCount);
 
-		LOGGER.info("Launch job {} ......", launchCount);
-		laucher.run(rdsBackupJob, new JobParametersBuilder().addDate("date", new Date()).toJobParameters());
-		LOGGER.info("Finished job {}.\n", launchCount);
+				try {
+					laucher.run(rdsBackupJob, new JobParametersBuilder().addDate("date", new Date()).toJobParameters());
+				} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
+						| JobParametersInvalidException e) {
+					LOGGER.error("Job {} failed:\n{}", launchCount, e);
+				}
 
-		++launchCount;
+				LOGGER.info("Finished job {}.\n", launchCount);
+				++launchCount;
+			}
+		}, 10000);
 	}
 }

@@ -25,5 +25,4 @@ public class HdfsTasklet implements Tasklet {
 
 		return RepeatStatus.FINISHED;
 	}
-
 }

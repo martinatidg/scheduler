@@ -31,5 +31,4 @@ public class LockTasklet implements Tasklet {
 
 		return RepeatStatus.FINISHED;
 	}
-
 }

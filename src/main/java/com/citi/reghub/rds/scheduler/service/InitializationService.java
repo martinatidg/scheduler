@@ -3,7 +3,6 @@ package com.citi.reghub.rds.scheduler.service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
@@ -45,8 +44,6 @@ public class InitializationService {
 	@Value("${rds.scheduler.mongo.port}")
 	private int port;
 
-	private boolean validated = false;
-
 	// Validate the user provided output path. If it's not provided, the default folder will be used.
 	public void validateOutputPath() throws ValidationException {
 		Path outputPath;
@@ -58,9 +55,9 @@ public class InitializationService {
 			outputPath = Paths.get(outputDir);
 		}
 
-		if (!exists(outputPath)) {
+		if (!Files.exists(outputPath)) {
 			try {
-				createDirectory(outputPath);
+				Files.createDirectory(outputPath);
 			} catch (IOException e) {
 				LOGGER.error("Output path '{}' cannot be created. ", outputPath.toString());
 				throw new ValidationException(e);
@@ -80,7 +77,7 @@ public class InitializationService {
 	public void validateMongoDBs() throws ValidationException {
 		ValidationException vex = new ValidationException("Initialization failed.");
 		Map<String, List<String>> databases = metadataService.getDatabases();
-		validated = false;
+		boolean validated = false;
 
 		for (Map.Entry<String, List<String>> db : databases.entrySet()) {
 			for (String collection : db.getValue()) {
@@ -130,16 +127,4 @@ public class InitializationService {
 			throw new Exception("ExportService failed.");
 		}
 	}
-
-	public boolean isValidated() {
-		return validated;
-	}
-
-    private boolean exists(Path path) {
-    	return Files.exists(path, new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
-    }
-    
-    private void createDirectory(Path path) throws IOException {
-    	Files.createDirectory(path);
-    }
 }

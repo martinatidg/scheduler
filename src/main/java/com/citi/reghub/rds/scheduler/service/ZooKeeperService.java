@@ -29,5 +29,4 @@ public class ZooKeeperService {
 	public String toString() {
 		return "ZooKeeper [fromTimestamp=" + Util.formatDate(fromTimestamp) + ", toTimeStamp=" + Util.formatDate(toTimestamp) + "]";
 	}
-
 }
