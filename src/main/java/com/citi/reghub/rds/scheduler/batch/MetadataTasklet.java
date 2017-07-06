@@ -26,10 +26,10 @@ public class MetadataTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		LOGGER.info("Step 1: Retrieve metadata.");
+		LOGGER.info("Step 1: Start Metadata tasklet.");
 
 		JobExecution job = arg1.getStepContext().getStepExecution().getJobExecution();
-		LOGGER.info("job id: " + job.getId() + ", jobId: " + job.getJobId());
+		LOGGER.trace("Step 1: id: {}, jobId: {}.", job.getId(), job.getJobId());
 
 		ExportRequest request = new ExportRequest();
 		request.setRequestId("" + job.getJobId());
@@ -39,9 +39,11 @@ public class MetadataTasklet implements Tasklet {
 		request.setDatabase(meta.getDatabase());
 		request.setCollection(meta.getCollection());
 
-		LOGGER.info("request at step 1:\n" + request);
+		LOGGER.trace("Step 1: Export request: {}.", request);
 		
 		job.getExecutionContext().put("metadata", request);
+
+		LOGGER.info("Step 1: Metadata tasklet was finished.");
 
 		return RepeatStatus.FINISHED;
 	}

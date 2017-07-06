@@ -14,12 +14,14 @@ public class EncryptCompressTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		LOGGER.info("Step 4: Encrypt and Compress.");
+		LOGGER.info("Step 4: Start Encryption and Compression tasklet.");
 
 		ExportResponse response = (ExportResponse) arg1.getStepContext().getStepExecution().getJobExecution()
 				.getExecutionContext().get("mongoRespone");
 
-		LOGGER.info("response at Step 4: " + response);
+		LOGGER.trace("Step 4: Export response: {}", response);
+
+		LOGGER.info("Step 4: Encryption and Compression tasklet was finished.");
 
 		return RepeatStatus.FINISHED;
 	}

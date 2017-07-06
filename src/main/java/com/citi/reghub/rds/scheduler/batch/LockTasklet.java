@@ -18,15 +18,16 @@ public class LockTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		LOGGER.info("Step 2: Obtain Lock.");
+		LOGGER.info("Step 2: Start Lock tasklet.");
 
 		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("metadata");
 		request.setFromTimeStamp(zooKeeperService.getFromTimestamp());
 		request.setToTimeStamp(zooKeeperService.getToTimeStamp());
 		
-		LOGGER.info("request at step 2:\n" + request);
-		LOGGER.info("ZooKeeperService at step 2:\n" + zooKeeperService);
+		LOGGER.trace("Step 2: Export request: {}.", request);
+		LOGGER.trace("Step 2: ZooKeeperService: {}.", zooKeeperService);
 
+		LOGGER.info("Step 2: Lock tasklet was finished.");
 
 		return RepeatStatus.FINISHED;
 	}

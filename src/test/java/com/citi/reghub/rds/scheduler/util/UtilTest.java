@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class UtilTest {
-
 	@Test
 	public void testFormatDateDefaultPattern() {
 		Calendar timestamp = new GregorianCalendar(2017, 5, 19, 13, 0, 0);
@@ -31,7 +30,5 @@ public class UtilTest {
 		expected = "2009-08-04 05:00:00.000-0400";
 		actual = Util.formatDate(timestamp, pattern);
 		assertEquals("Date format is incorrect.", expected, actual);
-	
 	}
-	
 }

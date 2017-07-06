@@ -25,7 +25,7 @@ import com.citi.reghub.rds.scheduler.batch.UnlockTasklet;
 
 @Configuration
 @EnableBatchProcessing
-@PropertySource("classpath:application.properties")	// disable/enable batch auto start
+@PropertySource("classpath:application.properties") // disable/enable batch auto start
 public class RdsBatchConfiguration {
 	@Autowired
 	public JobBuilderFactory jobBuilderFactory;
@@ -51,7 +51,7 @@ public class RdsBatchConfiguration {
 
 	@Bean
 	public Tasklet mongoexportTasklet() {
-		return  new MongoexportTasklet();
+		return new MongoexportTasklet();
 	};
 
 	@Bean
@@ -74,26 +74,31 @@ public class RdsBatchConfiguration {
 	public Step metadataStep() {
 		return stepBuilderFactory.get("metadataStep").tasklet(metadataTasklet()).build();
 	}
+
 	// step 2
 	@Bean
 	public Step lockStep() {
 		return stepBuilderFactory.get("lockStep").tasklet(lockTasklet()).build();
 	}
+
 	// step 3
 	@Bean
 	public Step mongoexportStep() {
 		return stepBuilderFactory.get("mongoexportStep").tasklet(mongoexportTasklet()).build();
 	}
+
 	// step 4
 	@Bean
 	public Step encryptCompressStep() {
 		return stepBuilderFactory.get("encryptCompressStep").tasklet(encryptCompressTasklet()).build();
 	}
+
 	// step 5
 	@Bean
 	public Step hdfsStep() {
 		return stepBuilderFactory.get("hdfsStep").tasklet(hdfsTasklet()).build();
 	}
+
 	// step 6
 	@Bean
 	public Step unlockStep() {
@@ -102,7 +107,8 @@ public class RdsBatchConfiguration {
 
 	@Bean
 	public Job rdsBackupJob() {
-		return jobBuilderFactory.get("rdsBackupJob").incrementer(new RunIdIncrementer())
-				.flow(metadataStep()).next(lockStep()).next(mongoexportStep()).next(encryptCompressStep()).next(hdfsStep()).next(unlockStep()).end().build();
+		return jobBuilderFactory.get("rdsBackupJob").incrementer(new RunIdIncrementer()).flow(metadataStep())
+				.next(lockStep()).next(mongoexportStep()).next(encryptCompressStep()).next(hdfsStep())
+				.next(unlockStep()).end().build();
 	}
 }

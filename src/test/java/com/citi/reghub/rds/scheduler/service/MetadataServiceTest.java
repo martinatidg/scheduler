@@ -18,24 +18,24 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 @Import(RdsSchedulerConfiguration.class)
 public class MetadataServiceTest {
 	@Autowired
-	MetadataService meta;
+	MetadataService metadataService;
 
 	@Test
 	public void testGetDatabases() {
-		Map<String, List<String>> dbs = meta.getDatabases();
+		Map<String, List<String>> dbs = metadataService.getDatabases();
 		Assert.assertNotNull(dbs);
 	}
 	
 	@Test
 	public void testGetDatabase() {
-		String db = meta.getDatabase();
+		String db = metadataService.getDatabase();
 		Assert.assertNotNull("Database name is null.", db);
 		Assert.assertNotEquals("Database name is empty.", db, "");
 	}
 	
 	@Test
 	public void testGetCollection() {
-		String col = meta.getDatabase();
+		String col = metadataService.getDatabase();
 		Assert.assertNotNull("Collection name is null.", col);
 		Assert.assertNotEquals("Collection name is empty.", col, "");
 	}

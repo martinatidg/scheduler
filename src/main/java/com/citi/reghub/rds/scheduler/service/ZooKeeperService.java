@@ -2,16 +2,13 @@ package com.citi.reghub.rds.scheduler.service;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import com.citi.reghub.rds.scheduler.util.Util;
 
 @Service
 public class ZooKeeperService {
 	private Calendar fromTimestamp = new GregorianCalendar(2017, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
-	private Calendar toTimestamp; // = new GregorianCalendar();
+	private Calendar toTimestamp;
 
 	public Calendar getFromTimestamp() {
 		return fromTimestamp;

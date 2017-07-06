@@ -15,9 +15,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MetadataService {
-	// key: database name, value: a list of collections in the database.
+	// key: database name, value: a list of collections of the database.
 	private Map<String, List<String>> databases;
-
 	private String database;
 	private String collection;
 

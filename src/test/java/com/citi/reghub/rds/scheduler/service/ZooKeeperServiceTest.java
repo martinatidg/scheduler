@@ -17,17 +17,17 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 @Import(RdsSchedulerConfiguration.class)
 public class ZooKeeperServiceTest {
 	@Autowired
-	ZooKeeperService zookeeper;
+	ZooKeeperService zooKeeperService;
 
 	@Test
 	public void testGetFromTimestamp() {
-		Calendar calendar = zookeeper.getFromTimestamp();
+		Calendar calendar = zooKeeperService.getFromTimestamp();
 		Assert.assertNotNull(calendar);
 	}
 	
 	@Test
 	public void testGetToTimestamp() {
-		Calendar calendar = zookeeper.getToTimeStamp();
+		Calendar calendar = zooKeeperService.getToTimeStamp();
 		Assert.assertNotNull(calendar);
 	}
 }

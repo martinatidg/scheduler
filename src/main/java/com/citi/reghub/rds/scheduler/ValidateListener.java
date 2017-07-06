@@ -12,9 +12,8 @@ import com.citi.reghub.rds.scheduler.service.ValidationException;
 
 /**
  * @author Martin Tan
- *
- *         validate the environment after all bean registered but before
- *         launching the job scheduler
+ *    validate the environment after all bean registered but before
+ *    launching the job scheduler
  */
 @Component
 public class ValidateListener implements ApplicationListener<ContextRefreshedEvent> { // ,
@@ -30,9 +29,8 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 			service.validateOutputPath();
 		}
 		catch (ValidationException e) {
-			LOGGER.info("ValidateListener -- output path validating failed: " + e.getMessage());
+			LOGGER.error("ValidateListener -- output path validating failed: {}.", e.getMessage());
 			System.exit(-1);
-
 		}
 
 		LOGGER.info("ValidateListener -- output path validated.");
@@ -42,7 +40,7 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 			service.validateMongoDBs();
 		}
 		catch (ValidationException e) {
-			LOGGER.info("ValidateListener -- MongoDB validating failed: " + e.getMessage());
+			LOGGER.error("ValidateListener -- MongoDB validating failed: {}.", e.getMessage());
 			System.exit(-1);
 		}
 

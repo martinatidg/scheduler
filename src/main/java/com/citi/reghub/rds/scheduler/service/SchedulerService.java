@@ -21,7 +21,7 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 @Service
 public class SchedulerService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RdsSchedulerConfiguration.class);
-	private int launchCount = 0;
+	private int launchCount = 1;
 
 	@Autowired
 	private JobLauncher laucher;
@@ -36,15 +36,14 @@ public class SchedulerService {
 	public void lauchJob() throws JobExecutionAlreadyRunningException, JobRestartException,
 			JobInstanceAlreadyCompleteException, JobParametersInvalidException {
 		if (!initializationService.isValidated()) {
-			LOGGER.info("launch job " + launchCount + ": not validated. waiting for initialization.");
+			LOGGER.info("Waiting for initialization to launch job {}.", launchCount);
 			return;
 		}
 
-		++launchCount;
-
-		LOGGER.info("launch job " + launchCount + " from scheduler .....");
+		LOGGER.info("Launch job {} ......", launchCount);
 		laucher.run(rdsBackupJob, new JobParametersBuilder().addDate("date", new Date()).toJobParameters());
-		LOGGER.info("finished job " + launchCount + " in scheduler.\n");
+		LOGGER.info("Finished job {}.\n", launchCount);
 
+		++launchCount;
 	}
 }

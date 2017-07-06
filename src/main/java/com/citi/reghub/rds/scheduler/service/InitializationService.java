@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -30,9 +29,7 @@ import com.citi.reghub.rds.scheduler.export.ExportService;
 @Service
 public class InitializationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
-	// default output name, used when the user set output path is empty.
-    //private static final String DEFAULT_OUTPUT = System.getProperty("java.io.tmpdir") + File.separator + "rds";
-    private static final String DEFAULT_OUTPUT = System.getProperty("user.home") + File.separator + "rds";
+    private static final String DEFAULT_OUTPUT_PATH = System.getProperty("user.home") + File.separator + "rds";
 
     @Autowired
 	private MetadataService metadataService;
@@ -41,27 +38,21 @@ public class InitializationService {
 
 	@Value("${rds.scheduler.mongo.binaryPath}")
 	private String binaryPath;
-	
 	@Value("${rds.scheduler.export.outputpath}")
 	private String outputDir;
-	
 	@Value("${rds.scheduler.mongo.host}")
 	private String host;
 	@Value("${rds.scheduler.mongo.port}")
 	private int port;
-	
 
-	private Path outputPath;
-
-	private List<String> errors = new ArrayList<>();
-	
 	private boolean validated = false;
 
-	// validate the user provided output path. If it's not provided, the default folder will be used.
+	// Validate the user provided output path. If it's not provided, the default folder will be used.
 	public void validateOutputPath() throws ValidationException {
+		Path outputPath;
 		if (outputDir == null || outputDir.isEmpty()) {
-			outputPath = Paths.get(DEFAULT_OUTPUT);
-			System.setProperty("rds.scheduler.export.outputpath", DEFAULT_OUTPUT);
+			outputPath = Paths.get(DEFAULT_OUTPUT_PATH);
+			System.setProperty("rds.scheduler.export.outputpath", DEFAULT_OUTPUT_PATH);
 		}
 		else {
 			outputPath = Paths.get(outputDir);
@@ -71,7 +62,8 @@ public class InitializationService {
 			try {
 				createDirectory(outputPath);
 			} catch (IOException e) {
-				throw new ValidationException(outputPath.toString() + " cannot be created: " + e.getMessage());
+				LOGGER.error("Output path '{}' cannot be created. ", outputPath.toString());
+				throw new ValidationException(e);
 			}
 		}
 
@@ -80,15 +72,15 @@ public class InitializationService {
 		}
 	}
 
-	// validate if the mongoDB is available and the mongoexport works.
+	// Validate if the mongoDB is available and if 'mongoexport' works.
 	// It will test against a list of databases and the associated collections.
-	// If any one of them validated, then the validation will pass. 
-	// For those validation failed, it will be logged.
+	// If validation for any of them succeeds, then the initialization succeeds. 
+	// If validations for all fail, then the initialization fails.
+	// All failed validations will be logged.
 	public void validateMongoDBs() throws ValidationException {
-		ValidationException vex = new ValidationException();
-
-		validated = false;
+		ValidationException vex = new ValidationException("Initialization failed.");
 		Map<String, List<String>> databases = metadataService.getDatabases();
+		validated = false;
 
 		for (Map.Entry<String, List<String>> db : databases.entrySet()) {
 			for (String collection : db.getValue()) {
@@ -96,25 +88,14 @@ public class InitializationService {
 					validateOneMongoDB(db.getKey(), collection);
 					validated = true;	// if no exception for any call of validateOneMongoDB,then the validation is passed.
 				} catch (Exception e) {
-					Exception ex = new Exception("Collection " + collection + " of database " + db + " is failed. Error message: " + e.getMessage());
-					vex.addSuppressed(ex);
-					LOGGER.info(ex.getMessage());
+					LOGGER.warn("Validation for Collection {} of database {} failed.", collection, db);
+					vex.addSuppressed(e);
 				}
 			}
 		}
 
 		if (!validated) {
-			throw vex;
-		}
-	}
-
-	// validate if the mongoDB is available and the mongoexport works
-	public void validateMongoDB() throws ValidationException {
-		try {
-			validateOneMongoDB(metadataService.getDatabase(), metadataService.getCollection());
-			validated = true;	// if no exception, then validation passed.
-		} catch (Exception e) {
-			throw new ValidationException("Output path is not accessible.");
+			throw vex;	// the initialization failed.
 		}
 	}
 
@@ -126,14 +107,13 @@ public class InitializationService {
 		request.setRequestId("validate");
 		request.setHostname(host);
 		request.setPort(port);
-
 		request.setDatabase(db);
 		request.setCollection(collection);
 		request.setLimit(1);
 
-		Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);	// month start from 0. So 5 is June.
+		// Create an old date so that 'mongoexport' will not miss any records.
+		Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);
 		Calendar toTimestamp = new GregorianCalendar();
-
 		request.setFromTimeStamp(fromTimestamp);
 		request.setToTimeStamp(toTimestamp);
 
@@ -155,10 +135,6 @@ public class InitializationService {
 		return validated;
 	}
 
-	public String getOutputPath() {
-		return outputPath.toString();
-	}
-
     private boolean exists(Path path) {
     	return Files.exists(path, new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
     }
@@ -166,5 +142,4 @@ public class InitializationService {
     private void createDirectory(Path path) throws IOException {
     	Files.createDirectory(path);
     }
-
 }

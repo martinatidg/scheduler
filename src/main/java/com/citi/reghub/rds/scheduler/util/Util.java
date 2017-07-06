@@ -3,7 +3,6 @@ package com.citi.reghub.rds.scheduler.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest

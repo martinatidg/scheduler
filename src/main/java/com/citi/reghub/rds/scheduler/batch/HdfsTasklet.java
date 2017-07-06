@@ -14,12 +14,14 @@ public class HdfsTasklet implements Tasklet {
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
-		LOGGER.info("Step 5: push to HDFS.");
+		LOGGER.info("Step 5: Start HDFS tasklet.");
 
 		ExportResponse response = (ExportResponse) arg1.getStepContext().getStepExecution().getJobExecution()
 				.getExecutionContext().get("mongoRespone");
 
-		LOGGER.info("respone at Step 5: " + response);
+		LOGGER.trace("Step 5: Response: {}", response);
+
+		LOGGER.info("Step 5: HDFS tasklet was finished.");
 
 		return RepeatStatus.FINISHED;
 	}

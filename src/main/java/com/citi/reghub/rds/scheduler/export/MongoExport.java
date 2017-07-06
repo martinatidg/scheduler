@@ -50,8 +50,13 @@ public class MongoExport implements Callable<ExportResponse> {
 
 	@Override
 	public ExportResponse call() throws Exception {
-//		String cmd = binaryPath + " " + getCommandLineKeys();
-		String cmd = binaryPath + " " + getLocalCommandLineKeys();
+		String cmd = binaryPath;
+		if (exportRequest.getHostname().contains("localhost")) {
+			cmd += " " + getLocalCommandLineKeys();
+		}
+		else {
+			cmd += " " + getCommandLineKeys();
+		}
 
 		RuntimeProcess process = new RuntimeProcess(cmd);
 		RuntimeProcessResult result = process.execute();
@@ -74,10 +79,8 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private void validateExportRequest(ExportRequest er) {
-		if (er == null || er.getHostname() == null || er.getCollection() == null || er.getDatabase() == null
-				|| er.getRequestId() == null) {
-			throw new IllegalArgumentException(
-					"ExportResult cannot be null or have any of it's variables set to null.");
+		if (er == null || er.getHostname() == null || er.getCollection() == null || er.getDatabase() == null || er.getRequestId() == null) {
+			throw new IllegalArgumentException("ExportResult cannot be null or have any of it's variables set to null.");
 		}
 	}
 
@@ -86,27 +89,22 @@ public class MongoExport implements Callable<ExportResponse> {
 
 		sb.append(keys.host + exportRequest.getHostname());
 		sb.append(keys.port + "" + exportRequest.getPort());
-		//
 		sb.append(keys.ssl);
 		sb.append(keys.sslAllowInvalidCertificates);
 		sb.append(keys.authenticationDatabase + "admin");
 		sb.append(keys.authenticationMechanism + "SCRAM-SHA-1");
-		//
 		sb.append(keys.db + exportRequest.getDatabase());
 		sb.append(keys.collection + exportRequest.getCollection());
 		if (exportRequest.getLimit() > 0) {
 			sb.append(keys.limit + "" + exportRequest.getLimit());
 		}
 		sb.append(keys.query + createQueryBetween(exportRequest));
-//			sb.append(keys.query + createQuery(exportRequest));
-
 		sb.append(keys.jsonArray);
 		sb.append(keys.out + getOutputPath());
-
-		LOGGER.info("MongoExport command line: {}", sb.toString());
-
 		sb.append(keys.username + username);
 		sb.append(keys.password + password);
+
+		LOGGER.info("MongoExport command line: {}", sb.toString());
 
 		return sb.toString();
 	}
@@ -120,21 +118,9 @@ public class MongoExport implements Callable<ExportResponse> {
 			sb.append(keys.limit + " " + exportRequest.getLimit());
 		}
 		sb.append(keys.query + createQueryBetween(exportRequest));
-//			sb.append(keys.query + createQuery(exportRequest));
 		sb.append(keys.out + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
-
-		return sb.toString();
-	}
-
-	private String createQuery(ExportRequest er) {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("\"{lastUpdatedTs : {$lte : new Date(");
-		sb.append(er.getLastTimeStamp().getTimeInMillis());
-		sb.append(")},");
-		sb.append(" isRDSEligible : true} \" ");
 
 		return sb.toString();
 	}
