@@ -2,10 +2,6 @@ package com.citi.reghub.rds.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -37,7 +33,7 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		}
 		catch (ValidationException e) {
 			LOGGER.error("ValidateListener -- output path validating failed: {}.", e.getMessage());
-			System.exit(-1);
+			throw e;
 		}
 
 		LOGGER.info("ValidateListener -- output path validated.");
@@ -48,7 +44,7 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		}
 		catch (ValidationException e) {
 			LOGGER.error("ValidateListener -- MongoDB validating failed: {}.", e.getMessage());
-			System.exit(-1);
+			throw e;
 		}
 
 		LOGGER.info("ValidateListener -- validating is successful.");

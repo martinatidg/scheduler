@@ -12,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
 import com.citi.reghub.rds.scheduler.export.ExportService;
+import com.citi.reghub.rds.scheduler.service.SchedulerService;
 
 public class MongoexportTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoexportTasklet.class);
 	@Autowired
 	private ExportService exportService;
+	@Autowired
+	private SchedulerService schedulerService;
 
 	@Override
 	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
@@ -29,6 +32,7 @@ public class MongoexportTasklet implements Tasklet {
 		
 		if (!exportResponse.isSuccessful()) {
 			LOGGER.error(exportResponse.getLastMessage());
+			schedulerService.cancelScheduler();
 			throw new JobExecutionException("Step3: Mongoexport tasklet failed.");
 		}
 
