@@ -1,13 +1,12 @@
 package com.citi.reghub.rds.scheduler.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 public class UtilTest {
 	@Test
 	public void testFormatDateDefaultPattern() {

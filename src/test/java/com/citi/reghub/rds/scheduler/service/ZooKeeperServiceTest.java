@@ -10,11 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.citi.reghub.rds.scheduler.RdsBatchConfiguration;
 import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Import(RdsSchedulerConfiguration.class)
+@Import({RdsSchedulerConfiguration.class, RdsBatchConfiguration.class})
 public class ZooKeeperServiceTest {
 	@Autowired
 	ZooKeeperService zooKeeperService;

@@ -1,6 +1,7 @@
 package com.citi.reghub.rds.scheduler.service;
 
 import java.util.Date;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.citi.reghub.rds.scheduler.RdsSchedulerConfiguration;
 public class SchedulerService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RdsSchedulerConfiguration.class);
 	private int launchCount = 1;
+	private Future<?> future;
 
 	@Autowired
 	private JobLauncher laucher;
@@ -33,7 +35,7 @@ public class SchedulerService {
 
 	public void lauchJob() {
 		LOGGER.info("Start scheduler");
-		taskScheduler.scheduleAtFixedRate(new Runnable() {
+		future = taskScheduler.scheduleAtFixedRate(new Runnable() {
 			public void run() {
 				LOGGER.info("Launch job {} ......", launchCount);
 
@@ -48,5 +50,9 @@ public class SchedulerService {
 				++launchCount;
 			}
 		}, 10000);
+	}
+
+	public void cancelScheduler() {
+		future.cancel(true);
 	}
 }
