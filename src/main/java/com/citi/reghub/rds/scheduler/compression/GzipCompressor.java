@@ -8,12 +8,12 @@ import java.util.zip.GZIPOutputStream;
 public class GzipCompressor implements Compressor {
 
 	@Override
-	public void uncompress(String zipFilePath) throws IOException {
+	public void decompress(String zipFilePath) throws IOException {
 
 	}
 
 	@Override
-	public void uncompress(String zipFilePath, String filePath) throws IOException {
+	public void decompress(String zipFilePath, String filePath) throws IOException {
 
 	}
 

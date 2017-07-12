@@ -1,5 +1,7 @@
 package com.citi.reghub.rds.scheduler.compression;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipCompressor implements Compressor {
@@ -35,25 +38,25 @@ public class ZipCompressor implements Compressor {
 	}
 
 	@Override
-	public void uncompress(String zipFilePath) throws IOException {
+	public void decompress(String zipFilePath) throws IOException {
 
 	}
 
 	@Override
-	public void uncompress(String zipFilePath, String filePath) throws IOException {
+	public void decompress(String zipFilePath, String filePath) throws IOException {
 
 	}
 
 	public void zipFile(String filename, String zipfilename) throws IOException {
 		String fname = Paths.get(filename).getFileName().toString();
 		byte[] buf = new byte[1024];
-		
+
 		try (FileInputStream fis = new FileInputStream(filename);
-				ZipOutputStream s = new ZipOutputStream((OutputStream) new FileOutputStream(zipfilename))){
+				ZipOutputStream s = new ZipOutputStream((OutputStream) new FileOutputStream(zipfilename))) {
 			fis.read(buf, 0, buf.length);
 			CRC32 crc = new CRC32();
 			s.setLevel(6);
-	
+
 			ZipEntry entry = new ZipEntry(fname);
 			entry.setSize((long) buf.length);
 			crc.reset();
@@ -85,7 +88,7 @@ public class ZipCompressor implements Compressor {
 		} else {
 			byte[] buf = new byte[1024];
 			int len;
-			try(FileInputStream in = new FileInputStream(srcFile)) {
+			try (FileInputStream in = new FileInputStream(srcFile)) {
 				zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
 				while ((len = in.read(buf)) > 0) {
 					zip.write(buf, 0, len);
@@ -102,6 +105,29 @@ public class ZipCompressor implements Compressor {
 				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
 			} else {
 				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
+			}
+		}
+	}
+
+	public void unzip(String zipFilename) throws Exception {
+		try (FileInputStream fis = new FileInputStream(zipFilename);
+				ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis))) {
+			ZipEntry entry;
+
+			while ((entry = zis.getNextEntry()) != null) {
+				System.out.println("Unzipping: " + entry.getName());
+
+				int size;
+				byte[] buffer = new byte[2048];
+
+				try (FileOutputStream fos = new FileOutputStream(entry.getName());
+						BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
+
+					while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+						bos.write(buffer, 0, size);
+					}
+					bos.flush();
+				}
 			}
 		}
 	}
