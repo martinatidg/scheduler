@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
 import com.citi.reghub.rds.scheduler.export.ExportService;
+import com.citi.reghub.rds.scheduler.util.Util;
 /**
  * @author Martin Tan
  *
@@ -126,5 +127,8 @@ public class InitializationService {
 		if (!passed) {
 			throw new Exception("ExportService failed.");
 		}
+
+		Path outPath = Paths.get(response.getExportPath()).getParent();
+		Util.deleteDirectory(outPath.toString());
 	}
 }
