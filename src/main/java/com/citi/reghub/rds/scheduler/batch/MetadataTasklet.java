@@ -41,7 +41,7 @@ public class MetadataTasklet implements Tasklet {
 
 		LOGGER.trace("Step 1: Export request: {}.", request);
 		
-		job.getExecutionContext().put("metadata", request);
+		job.getExecutionContext().put("request", request);
 
 		LOGGER.info("Step 1: Metadata tasklet was finished.");
 

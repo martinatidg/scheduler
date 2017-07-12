@@ -1,5 +1,7 @@
 package com.citi.reghub.rds.scheduler.export;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -141,7 +143,8 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private String getOutputPath() {
-		return this.outputPath + exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
+		Path outputPath = Paths.get(this.outputPath, exportRequest.getRequestId(), exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection());
+		return outputPath.toString();
 	}
 
 	private static boolean isLinux() {

@@ -17,13 +17,13 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipCompressor implements Compressor {
 	@Override
-	public void compress(String fileName) throws IOException {
+	public Path compress(String fileName) throws IOException {
 		String zipFileName = fileName + ".zip";
-		compress(fileName, zipFileName);
+		return compress(fileName, zipFileName);
 	}
 
 	@Override
-	public void compress(String fileName, String zipFileName) throws IOException {
+	public Path compress(String fileName, String zipFileName) throws IOException {
 		zipFileName += (zipFileName.endsWith(".zip") ? "" : ".zip");
 		Path filePath = Paths.get(fileName);
 		Path zipFilePath = Paths.get(zipFileName);
@@ -35,6 +35,8 @@ public class ZipCompressor implements Compressor {
 		} else {
 			zipFile(fileName, zipFileName);
 		}
+
+		return zipFilePath;
 	}
 
 	@Override
