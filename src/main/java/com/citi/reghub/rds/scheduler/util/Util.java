@@ -10,6 +10,10 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class Util {
+	private Util() throws Exception {
+		throw new Exception("The Util class contains static methods only and cannot be instantiated.");
+	}
+
 	public static String formatDate(Calendar cal, String pattern) {
 		if (cal == null) {
 			return "";
@@ -30,7 +34,7 @@ public class Util {
 		}
 
 		Path dirpath = Paths.get(dirname);
-		if (!Files.exists(dirpath)) {
+		if (!dirpath.toFile().exists()) {
 			return;
 		}
 
@@ -46,15 +50,10 @@ public class Util {
 		DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath);
 
 		for (Path path : stream) {
-			if (Files.isDirectory(path)) {
-				if (!isDirectoryEmpty(path)) {
-					revursiveDeleteDir(path);
-				}
-				Files.deleteIfExists(path);
+			if (path.toFile().isDirectory() && !isDirectoryEmpty(path)) {
+				revursiveDeleteDir(path);
 			}
-			else {
-				Files.deleteIfExists(path);
-			}
+			Files.deleteIfExists(path);
 		}
 
 		stream.close();
@@ -65,7 +64,7 @@ public class Util {
 		DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory);
 		boolean isempty = !directoryStream.iterator().hasNext();
 		directoryStream.close();
-		
+
 		return isempty;
 	}
 }

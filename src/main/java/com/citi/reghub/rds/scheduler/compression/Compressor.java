@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public interface Compressor {
-	Path compress(String filePath) throws IOException;
-	Path compress(String filePath, String zipFilePath) throws IOException;
-	void decompress(String zipFilePath) throws IOException;
-	void decompress(String zipFilePath, String filePath) throws IOException;
+	boolean KEEP_EMPTY_FOLDER = true;	// keep the empty folder when compress/decompress, temporarily hard coded.
+	Path compress(String sourceFile) throws IOException;
+	Path compress(String sourceFile, String destZipFile) throws IOException;
+	void decompress(String sourceZipFile) throws IOException;
+	void decompress(String sourceZipFile, String destUnzipDir) throws IOException;
 }

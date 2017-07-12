@@ -18,8 +18,6 @@ public class ZipCompressorTest {
 	private String zipDirname = TestZip.TESTPATH + File.separator + "dirTest.zip";
 	private String filename = TestZip.TESTPATH + File.separator + "zipFileTest";
 	private String zipFilename = TestZip.TESTPATH + File.separator + "zipFileTest.zip";
-	private String unzipFilename = TestZip.TESTPATH + File.separator + "zippeddirTest.zip";
-	private String unzippedDir = TestZip.TESTPATH + File.separator + "unzippedDir";
 
 	private TestZipDirectory testDir;
 	private TestZipFile testFile;
@@ -49,16 +47,9 @@ public class ZipCompressorTest {
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
 	}
 
-	@Test
-	public void testDecompress() throws IOException {
-		Compressor compressor = Compressors.zipCompressor();
-		compressor.decompress(unzipFilename, unzippedDir);
-		assertTrue("Zipped file not unzipped.", Files.exists(Paths.get(unzippedDir)));
-	}
-
 	@After
 	public void clean() throws IOException {
-//		testDir.clean();
-//		testFile.clean();
+		testDir.clean();
+		testFile.clean();
 	}
 }

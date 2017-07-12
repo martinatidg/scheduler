@@ -20,11 +20,11 @@ public class GzipCompressor implements Compressor {
 	}
 
 	@Override
-	public Path compress(String filename, String zipFilename) throws IOException {
+	public Path compress(String sourceFile, String destZipFile) throws IOException {
 		byte[] buffer = new byte[1024];
 
-		try (FileInputStream inputFile = new FileInputStream(filename);
-				GZIPOutputStream zoutStream = new GZIPOutputStream(new FileOutputStream(zipFilename))) {
+		try (FileInputStream inputFile = new FileInputStream(sourceFile);
+				GZIPOutputStream zoutStream = new GZIPOutputStream(new FileOutputStream(destZipFile))) {
 			int len;
 			while ((len = inputFile.read(buffer)) > 0) {
 				zoutStream.write(buffer, 0, len);
@@ -33,12 +33,12 @@ public class GzipCompressor implements Compressor {
 			zoutStream.finish();
 		}
 
-		return Paths.get(zipFilename);
+		return Paths.get(destZipFile);
 	}
 
 	@Override
-	public Path compress(String filePath) throws IOException {
-		String zipFilePath = filePath + ".gzip";
-		return compress(filePath, zipFilePath);
+	public Path compress(String sourceFile) throws IOException {
+		String destZipFile = sourceFile + ".gzip";
+		return compress(sourceFile, destZipFile);
 	}
 }
