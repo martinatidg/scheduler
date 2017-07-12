@@ -38,13 +38,41 @@ public class ZipCompressor implements Compressor {
 	}
 
 	@Override
-	public void decompress(String zipFilePath) throws IOException {
+	public void decompress(String zipFileName) throws IOException {
+		Path currentPath = Paths.get(zipFileName).getParent();
+		System.out.println("currentPath: " + currentPath);
 
+		decompress(zipFileName, currentPath.toString());
 	}
 
 	@Override
-	public void decompress(String zipFilePath, String filePath) throws IOException {
+	public void decompress(String zipFilename, String unzipDir) throws IOException {
+		try (FileInputStream fis = new FileInputStream(zipFilename);
+				ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis))) {
+			ZipEntry entry;
 
+			while ((entry = zis.getNextEntry()) != null) {
+				System.out.println("Unzipping: " + entry.getName());
+				Path outputpath = Paths.get(unzipDir, entry.getName());
+				Path parentpath = outputpath.getParent();
+				System.out.println("outputpath: " + outputpath + ", parentpath: " + parentpath);
+				if (!Files.exists(parentpath)) {
+					Files.createDirectories(parentpath);
+				}
+
+				int size;
+				byte[] buffer = new byte[2048];
+
+				FileOutputStream fos = new FileOutputStream(outputpath.toString());
+				BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
+
+				while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+					bos.write(buffer, 0, size);
+				}
+				bos.flush();
+				bos.close();
+			}
+		}
 	}
 
 	public void zipFile(String filename, String zipfilename) throws IOException {
@@ -105,29 +133,6 @@ public class ZipCompressor implements Compressor {
 				addFileToZip(folder.getName(), srcFolder + "/" + fileName, zip);
 			} else {
 				addFileToZip(path + "/" + folder.getName(), srcFolder + "/" + fileName, zip);
-			}
-		}
-	}
-
-	public void unzip(String zipFilename) throws Exception {
-		try (FileInputStream fis = new FileInputStream(zipFilename);
-				ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis))) {
-			ZipEntry entry;
-
-			while ((entry = zis.getNextEntry()) != null) {
-				System.out.println("Unzipping: " + entry.getName());
-
-				int size;
-				byte[] buffer = new byte[2048];
-
-				try (FileOutputStream fos = new FileOutputStream(entry.getName());
-						BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
-
-					while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
-						bos.write(buffer, 0, size);
-					}
-					bos.flush();
-				}
 			}
 		}
 	}

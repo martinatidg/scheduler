@@ -26,6 +26,7 @@ public class TestZipDirectory implements TestZip {
 		Files.deleteIfExists(zipPath);
 	}
 
+	// setup a in-memory tree structure used to create the directories and files for testing
 	private void setupDirTree() throws IOException {
 		List<Node<String>> children = new ArrayList<>();
 
@@ -53,11 +54,11 @@ public class TestZipDirectory implements TestZip {
 		createFile(node.getPath(), node.getData());
 	}
 
+	// create a list of file nodes
 	private List<Node<String>> createDataNodes(String pathName, String data, int nodeNum) {
 		List<Node<String>> nodeList = new ArrayList<>();
 		for (int i = 1; i <= nodeNum; i++) {
-			String fname =Paths.get(pathName).getFileName().toString();
-			Path filePath = Paths.get(pathName, fname + "_" + i + ".txt");
+			Path filePath = Paths.get(pathName, data + "_" + i + ".txt");
 			Node<String> node = new Node<>(filePath, data + "_" + i);
 			nodeList.add(node);
 		}
@@ -65,6 +66,7 @@ public class TestZipDirectory implements TestZip {
 		return nodeList;
 	}
 
+	// create a list of directory nodes without children
 	private List<Node<String>> createDirNodes(String pathName, int nodeNum) {
 		List<Node<String>> nodeList = new ArrayList<>();
 		for (int i = 1; i <= nodeNum; i++) {
@@ -77,23 +79,25 @@ public class TestZipDirectory implements TestZip {
 		return nodeList;
 	}
 
+	// make a directory node with children mixed data file and directory nodes
 	private Node<String> CreateDirWithChildren(String dir, String data, int dirNum, int dataNum) {
 		List<Node<String>> dataNodes = createDataNodes(dir, data, dataNum);
 		List<Node<String>> dirNodes = createDirNodes(dir, dirNum);
 
-		dataNodes.addAll(dirNodes); // make the directory have mixed data file and directories
+		dataNodes.addAll(dirNodes); 
 		Path nodePath = Paths.get(dir);
 		Node<String> node = new Node<>(nodePath, dataNodes, true);
 
 		return node;
 	}
 
-	private void createFileTree(Node<String> topRoot) throws IOException {
-		if (topRoot == null) {
+	// create the actual directories and files on the disk file system with a Node tree
+	private void createFileTree(Node<String> topNode) throws IOException {
+		if (topNode == null) {
 			return;
 		}
 
-		for (Node<String> node : topRoot.getChildren()) {
+		for (Node<String> node : topNode.getChildren()) {
 			if (node.isDirectory()) {
 				Files.createDirectories(node.getPath());
 				if (node.getChildren() != null) {
@@ -105,12 +109,13 @@ public class TestZipDirectory implements TestZip {
 		}
 	}
 
-	private void deleteFileTree(Node<String> topRoot) throws IOException {
-		if (topRoot == null) {
+	// delete the directories and files after the test
+	private void deleteFileTree(Node<String> topNode) throws IOException {
+		if (topNode == null) {
 			return;
 		}
 
-		for (Node<String> node : topRoot.getChildren()) {
+		for (Node<String> node : topNode.getChildren()) {
 			if (node.isDirectory()) {
 				Files.createDirectories(node.getPath());
 				if (node.getChildren() != null) {
@@ -120,10 +125,11 @@ public class TestZipDirectory implements TestZip {
 			Files.deleteIfExists(node.getPath());
 		}
 
-		Files.deleteIfExists(topRoot.getPath());
+		Files.deleteIfExists(topNode.getPath());
 	}
 }
 
+// a node of a tree
 class Node<T> {
 	private Path path = null;
 	private T data = null;
@@ -179,7 +185,6 @@ class Node<T> {
 
 	@Override
 	public String toString() {
-		return "Node [path=" + path + ", data=" + data + ", children=" + children + ", isDirectory=" + isDirectory
-				+ "]";
+		return "Node [path=" + path + ", data=" + data + ", children=" + children + ", isDirectory=" + isDirectory + "]";
 	}
 }

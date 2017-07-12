@@ -45,7 +45,7 @@ public class InitializationService {
 	private int port;
 
 	// Validate the user provided output path. If it's not provided, the default folder will be used.
-	public void validateOutputPath() throws ValidationException {
+	public void validateOutputPath() throws InitializationException {
 		Path outputPath;
 		if (outputDir == null || outputDir.isEmpty()) {
 			outputPath = Paths.get(DEFAULT_OUTPUT_PATH);
@@ -60,12 +60,12 @@ public class InitializationService {
 				Files.createDirectory(outputPath);
 			} catch (IOException e) {
 				LOGGER.error("Output path '{}' cannot be created. ", outputPath.toString());
-				throw new ValidationException(e);
+				throw new InitializationException(e);
 			}
 		}
 
 		if (!Files.isReadable(outputPath) && !Files.isWritable(outputPath)) {
-			throw new ValidationException("Output path is not accessible.");
+			throw new InitializationException("Output path is not accessible.");
 		}
 	}
 
@@ -74,8 +74,8 @@ public class InitializationService {
 	// If validation for any of them succeeds, then the initialization succeeds. 
 	// If validations for all fail, then the initialization fails.
 	// All failed validations will be logged.
-	public void validateMongoDBs() throws ValidationException {
-		ValidationException vex = new ValidationException("Initialization failed.");
+	public void validateMongoDBs() throws InitializationException {
+		InitializationException vex = new InitializationException("Initialization failed.");
 		Map<String, List<String>> databases = metadataService.getDatabases();
 		boolean validated = false;
 

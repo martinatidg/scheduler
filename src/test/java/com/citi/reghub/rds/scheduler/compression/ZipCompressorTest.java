@@ -14,13 +14,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class ZipCompressorTest {
-	String dirname = TestZip.TESTPATH + File.separator + "dirTest";
-	String zipDirname = TestZip.TESTPATH + File.separator + "dirTest.zip";
-	String filename = TestZip.TESTPATH + File.separator + "zipFileTest";
-	String zipFilename = TestZip.TESTPATH + File.separator + "zipFileTest.zip";
+	private String dirname = TestZip.TESTPATH + File.separator + "dirTest";
+	private String zipDirname = TestZip.TESTPATH + File.separator + "dirTest.zip";
+	private String filename = TestZip.TESTPATH + File.separator + "zipFileTest";
+	private String zipFilename = TestZip.TESTPATH + File.separator + "zipFileTest.zip";
+	private String unzipFilename = TestZip.TESTPATH + File.separator + "zippeddirTest.zip";
+	private String unzippedDir = TestZip.TESTPATH + File.separator + "unzippedDir";
 
-	TestZipDirectory testDir;
-	TestZipFile testFile;
+	private TestZipDirectory testDir;
+	private TestZipFile testFile;
 
 	@Before
 	public void init() throws IOException {
@@ -34,22 +36,29 @@ public class ZipCompressorTest {
 	}
 
 	@Test
-	public void testZipDirectory() throws Exception {
+	public void testZipDirectory() throws IOException {
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(dirname, zipDirname);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipDirname)));
 	}
 
 	@Test
-	public void testZipFile() throws Exception {
+	public void testZipFile() throws IOException {
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(filename, zipFilename);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
 	}
 
+	@Test
+	public void testDecompress() throws IOException {
+		Compressor compressor = Compressors.zipCompressor();
+		compressor.decompress(unzipFilename, unzippedDir);
+		assertTrue("Zipped file not unzipped.", Files.exists(Paths.get(unzippedDir)));
+	}
+
 	@After
 	public void clean() throws IOException {
-		testDir.clean();
-		testFile.clean();
+//		testDir.clean();
+//		testFile.clean();
 	}
 }
