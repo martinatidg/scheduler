@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.citi.reghub.rds.scheduler.service.InitializationService;
 import com.citi.reghub.rds.scheduler.service.SchedulerService;
-import com.citi.reghub.rds.scheduler.service.ValidationException;
+import com.citi.reghub.rds.scheduler.service.InitializationException;
 
 /**
  * @author Martin Tan
@@ -31,7 +31,7 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		try {
 			service.validateOutputPath();
 		}
-		catch (ValidationException e) {
+		catch (InitializationException e) {
 			LOGGER.error("ValidateListener -- output path validating failed: {}.", e.getMessage());
 			throw e;
 		}
@@ -42,7 +42,7 @@ public class ValidateListener implements ApplicationListener<ContextRefreshedEve
 		try {
 			service.validateMongoDBs();
 		}
-		catch (ValidationException e) {
+		catch (InitializationException e) {
 			LOGGER.error("ValidateListener -- MongoDB validating failed: {}.", e.getMessage());
 			throw e;
 		}

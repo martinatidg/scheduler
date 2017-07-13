@@ -18,9 +18,7 @@ public class ExportService {
 		MongoExport exportTask = getMongoExport();
 		exportTask.setRequest(request);
 
-		Future<ExportResponse> task = taskExecutor.submit(exportTask);
-
-		return task;
+		return taskExecutor.submit(exportTask);
 	}
 
 	private MongoExport getMongoExport() {

@@ -6,6 +6,7 @@ import org.springframework.batch.core.JobExecutionException;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,9 +23,10 @@ public class MongoexportTasklet implements Tasklet {
 	private SchedulerService schedulerService;
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 3: Start Mongoexport tasklet.");
-		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("metadata");
+		ExecutionContext executionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		ExportRequest request = (ExportRequest) executionContext.get("request");
 		
 		LOGGER.trace("Step 3: Export request: {}: ", request);
 
@@ -38,7 +40,7 @@ public class MongoexportTasklet implements Tasklet {
 
 		LOGGER.trace("Step 3: Mongoexport response: {} ", exportResponse);
 
-		arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("mongoRespone", exportResponse);
+		executionContext.put("response", exportResponse);
 
 		LOGGER.info("Step 3: Mongoexport tasklet was finished.");
 

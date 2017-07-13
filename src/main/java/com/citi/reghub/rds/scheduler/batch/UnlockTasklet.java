@@ -18,10 +18,10 @@ public class UnlockTasklet implements Tasklet {
 	private ZooKeeperService zooKeeperService;
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 6: Start Unlock tasklet.");
 
-		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("metadata");
+		ExportRequest request = (ExportRequest) chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("request");
 		zooKeeperService.setFromTimestamp(request.getToTimeStamp());
 
 		LOGGER.trace("Step 6: Export request: {}.", request);

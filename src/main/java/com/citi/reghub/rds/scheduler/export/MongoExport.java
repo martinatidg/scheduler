@@ -1,5 +1,7 @@
 package com.citi.reghub.rds.scheduler.export;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -23,7 +25,6 @@ import com.citi.reghub.rds.scheduler.process.RuntimeProcessResult;
 public class MongoExport implements Callable<ExportResponse> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MongoExport.class);
 
-	private static String osKeyPrefix = isLinux() ? " --" : " /";
 	@Value("${rds.scheduler.mongo.binaryPath}")
 	private String binaryPath;
 	@Value("${rds.scheduler.export.outputpath}")
@@ -34,12 +35,27 @@ public class MongoExport implements Callable<ExportResponse> {
 	private String password;
 	private ExportRequest exportRequest;
 
-	enum keys {
-		host, port, ssl, sslAllowInvalidCertificates, authenticationDatabase, authenticationMechanism, db, collection, query, jsonArray, out, username, password, limit;
+	enum Keys {
+		HOST("host"), PORT("port"), SSL("ssl"), SAIC("sslAllowInvalidCertificates"),
+		AUTH_DB("authenticationDatabase"), AUTH_MSM("authenticationMechanism"), 
+		DB("db"), COLLECTION("collection"), QUERY("query"), JSON_ARRAY("jsonArray"),
+		OUT("out"), USERNAME("username"), PASSWORD("password"), LIMIT("limit");
+
+		private String key;
+
+		private Keys(String key) {
+			this.key = key;
+		}
 
 		@Override
 		public String toString() {
-			return osKeyPrefix + super.toString() + " ";
+			return OS_KEY_PREFIX + key + " ";
+		}
+
+		private static final String OS_KEY_PREFIX = isLinux() ? " --" : " /";
+
+		private static boolean isLinux() {
+			return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0 ? false : true;
 		}
 	}
 
@@ -87,22 +103,22 @@ public class MongoExport implements Callable<ExportResponse> {
 	private String getCommandLineKeys() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(keys.host + exportRequest.getHostname());
-		sb.append(keys.port + "" + exportRequest.getPort());
-		sb.append(keys.ssl);
-		sb.append(keys.sslAllowInvalidCertificates);
-		sb.append(keys.authenticationDatabase + "admin");
-		sb.append(keys.authenticationMechanism + "SCRAM-SHA-1");
-		sb.append(keys.db + exportRequest.getDatabase());
-		sb.append(keys.collection + exportRequest.getCollection());
+		sb.append(Keys.HOST + exportRequest.getHostname());
+		sb.append(Keys.PORT + "" + exportRequest.getPort());
+		sb.append(Keys.SSL);
+		sb.append(Keys.SAIC);
+		sb.append(Keys.AUTH_DB + "admin");
+		sb.append(Keys.AUTH_MSM + "SCRAM-SHA-1");
+		sb.append(Keys.DB + exportRequest.getDatabase());
+		sb.append(Keys.COLLECTION + exportRequest.getCollection());
 		if (exportRequest.getLimit() > 0) {
-			sb.append(keys.limit + "" + exportRequest.getLimit());
+			sb.append(Keys.LIMIT + "" + exportRequest.getLimit());
 		}
-		sb.append(keys.query + createQueryBetween(exportRequest));
-		sb.append(keys.jsonArray);
-		sb.append(keys.out + getOutputPath());
-		sb.append(keys.username + username);
-		sb.append(keys.password + password);
+		sb.append(Keys.QUERY + createQueryBetween(exportRequest));
+		sb.append(Keys.JSON_ARRAY);
+		sb.append(Keys.OUT + getOutputPath());
+		sb.append(Keys.USERNAME + username);
+		sb.append(Keys.PASSWORD + password);
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -112,13 +128,13 @@ public class MongoExport implements Callable<ExportResponse> {
 	private String getLocalCommandLineKeys() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(keys.db + exportRequest.getDatabase());
-		sb.append(keys.collection + exportRequest.getCollection());
+		sb.append(Keys.DB + exportRequest.getDatabase());
+		sb.append(Keys.COLLECTION + exportRequest.getCollection());
 		if (exportRequest.getLimit() > 0) {
-			sb.append(keys.limit + " " + exportRequest.getLimit());
+			sb.append(Keys.LIMIT + " " + exportRequest.getLimit());
 		}
-		sb.append(keys.query + createQueryBetween(exportRequest));
-		sb.append(keys.out + getOutputPath());
+		sb.append(Keys.QUERY + createQueryBetween(exportRequest));
+		sb.append(Keys.OUT + getOutputPath());
 
 		LOGGER.info("MongoExport command line: {}", sb.toString());
 
@@ -141,11 +157,7 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private String getOutputPath() {
-		return this.outputPath + exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
+		Path outputPath = Paths.get(this.outputPath, exportRequest.getRequestId(), exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection());
+		return outputPath.toString();
 	}
-
-	private static boolean isLinux() {
-		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0 ? false : true;
-	}
-
 }
