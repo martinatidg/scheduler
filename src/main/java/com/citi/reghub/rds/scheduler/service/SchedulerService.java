@@ -35,20 +35,18 @@ public class SchedulerService {
 
 	public void lauchJob() {
 		LOGGER.info("Start scheduler");
-		future = taskScheduler.scheduleAtFixedRate(new Runnable() {
-			public void run() {
-				LOGGER.info("Launch job {} ......", launchCount);
+		future = taskScheduler.scheduleAtFixedRate(() -> {
+			LOGGER.info("Launch job {} ......", launchCount);
 
-				try {
-					laucher.run(rdsBackupJob, new JobParametersBuilder().addDate("date", new Date()).toJobParameters());
-				} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
-						| JobParametersInvalidException e) {
-					LOGGER.error("Job {} failed:\n{}", launchCount, e);
-				}
-
-				LOGGER.info("Finished job {}.\n", launchCount);
-				++launchCount;
+			try {
+				laucher.run(rdsBackupJob, new JobParametersBuilder().addDate("date", new Date()).toJobParameters());
+			} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
+					| JobParametersInvalidException e) {
+				LOGGER.error("Job {} failed:\n{}", launchCount, e);
 			}
+
+			LOGGER.info("Finished job {}.\n", launchCount);
+			++launchCount;
 		}, 10000);
 	}
 

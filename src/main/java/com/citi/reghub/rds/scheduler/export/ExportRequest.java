@@ -1,6 +1,8 @@
 package com.citi.reghub.rds.scheduler.export;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.citi.reghub.rds.scheduler.util.Util;
 
@@ -89,6 +91,16 @@ public class ExportRequest {
 
 	public void setToTimeStamp(Calendar toTimeStamp) {
 		this.toTimeStamp = toTimeStamp;
+	}
+
+	public boolean isInValid() {
+		List<String> parameters = new ArrayList<>();
+		parameters.add(hostname);
+		parameters.add(collection);
+		parameters.add(database);
+		parameters.add(requestId);
+		
+		return parameters.contains(null) || parameters.contains("");
 	}
 
 	@Override

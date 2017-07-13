@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +21,19 @@ import com.citi.reghub.rds.scheduler.export.ExportRequest;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
 import com.citi.reghub.rds.scheduler.export.ExportService;
 import com.citi.reghub.rds.scheduler.util.Util;
+
 /**
  * @author Martin Tan
  *
- * validate the output path and check if MongDB works properly
+ *         validate the output path and check if MongDB works properly
  */
 
 @Service
 public class InitializationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
-    private static final String DEFAULT_OUTPUT_PATH = System.getProperty("user.home") + File.separator + "rds";
+	private static final String DEFAULT_OUTPUT_PATH = System.getProperty("user.home") + File.separator + "rds";
 
-    @Autowired
+	@Autowired
 	private MetadataService metadataService;
 	@Autowired
 	private ExportService exportService;
@@ -45,14 +47,14 @@ public class InitializationService {
 	@Value("${rds.scheduler.mongo.port}")
 	private int port;
 
-	// Validate the user provided output path. If it's not provided, the default folder will be used.
-	public void validateOutputPath() throws InitializationException {
+	// Validate the user provided output path. If it's not provided, the default
+	// folder will be used.
+	public void validateOutputPath() { // throws InitializationException {
 		Path outputPath;
 		if (outputDir == null || outputDir.isEmpty()) {
 			outputPath = Paths.get(DEFAULT_OUTPUT_PATH);
 			System.setProperty("rds.scheduler.export.outputpath", DEFAULT_OUTPUT_PATH);
-		}
-		else {
+		} else {
 			outputPath = Paths.get(outputDir);
 		}
 
@@ -72,10 +74,10 @@ public class InitializationService {
 
 	// Validate if the mongoDB is available and if 'mongoexport' works.
 	// It will test against a list of databases and the associated collections.
-	// If validation for any of them succeeds, then the initialization succeeds. 
+	// If validation for any of them succeeds, then the initialization succeeds.
 	// If validations for all fail, then the initialization fails.
 	// All failed validations will be logged.
-	public void validateMongoDBs() throws InitializationException {
+	public void validateMongoDBs() { // throws InitializationException {
 		InitializationException vex = new InitializationException("Initialization failed.");
 		Map<String, List<String>> databases = metadataService.getDatabases();
 		boolean validated = false;
@@ -84,7 +86,9 @@ public class InitializationService {
 			for (String collection : db.getValue()) {
 				try {
 					validateOneMongoDB(db.getKey(), collection);
-					validated = true;	// if no exception for any call of validateOneMongoDB,then the validation is passed.
+					validated = true; // if no exception for any call of
+										// validateOneMongoDB,then the
+										// validation is passed.
 				} catch (Exception e) {
 					LOGGER.warn("Validation for Collection {} of database {} failed.", collection, db);
 					vex.addSuppressed(e);
@@ -93,42 +97,38 @@ public class InitializationService {
 		}
 
 		if (!validated) {
-			throw vex;	// the initialization failed.
+			throw vex; // the initialization failed.
 		}
 	}
 
-	private void validateOneMongoDB(String db, String collection) throws Exception {
-		boolean passed = false;
-		ExportResponse response = null;
+	private void validateOneMongoDB(String db, String collection) throws MongoexportException {
+		try {
 
-		ExportRequest request = new ExportRequest();
-		request.setRequestId("validate");
-		request.setHostname(host);
-		request.setPort(port);
-		request.setDatabase(db);
-		request.setCollection(collection);
-		request.setLimit(1);
+			ExportRequest request = new ExportRequest();
+			request.setRequestId("validate");
+			request.setHostname(host);
+			request.setPort(port);
+			request.setDatabase(db);
+			request.setCollection(collection);
+			request.setLimit(1);
 
-		// Create an old date so that 'mongoexport' will not miss any records.
-		Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);
-		Calendar toTimestamp = new GregorianCalendar();
-		request.setFromTimeStamp(fromTimestamp);
-		request.setToTimeStamp(toTimestamp);
+			// Create an old date so that 'mongoexport' will not miss any records.
+			Calendar fromTimestamp = new GregorianCalendar(1980, 5, 19, 13, 0, 0);
+			Calendar toTimestamp = new GregorianCalendar();
+			request.setFromTimeStamp(fromTimestamp);
+			request.setToTimeStamp(toTimestamp);
 
-		response = exportService.submitRequest(request).get();
+			ExportResponse response = exportService.submitRequest(request).get();
 
-		if (response != null) {
-			passed = response.isSuccessful();
+			boolean passed = response == null ? false : response.isSuccessful();
+			if (!passed) {
+				throw new MongoexportException("ExportService failed.");
+			}
+
+			Path outPath = Paths.get(response.getExportPath()).getParent();
+			Util.deleteDirectory(outPath.toString());
+		} catch (InterruptedException | ExecutionException | IOException e) {
+			throw new MongoexportException(e);
 		}
-		else {
-			passed = false;
-		}
-
-		if (!passed) {
-			throw new Exception("ExportService failed.");
-		}
-
-		Path outPath = Paths.get(response.getExportPath()).getParent();
-		Util.deleteDirectory(outPath.toString());
 	}
 }

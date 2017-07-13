@@ -15,13 +15,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MetadataService {
-	// key: database name, value: a list of collections of the database.
-	private Map<String, List<String>> databases;
 	private String database;
 	private String collection;
 
+	// key: database name, value: a list of collections of the database.
 	public Map<String, List<String>> getDatabases() {
-		databases = new HashMap<>();
+		Map<String, List<String>> databases = new HashMap<>();
 
 		List<String> collections = new ArrayList<>();
 		collections.add("entities_rds");

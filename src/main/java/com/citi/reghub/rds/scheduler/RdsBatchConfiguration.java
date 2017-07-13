@@ -42,32 +42,32 @@ public class RdsBatchConfiguration {
 	@Bean
 	public Tasklet metadataTasklet() {
 		return new MetadataTasklet();
-	};
+	}
 
 	@Bean
 	public Tasklet lockTasklet() {
 		return new LockTasklet();
-	};
+	}
 
 	@Bean
 	public Tasklet mongoexportTasklet() {
 		return new MongoexportTasklet();
-	};
+	}
 
 	@Bean
 	public Tasklet encryptCompressTasklet() {
 		return new EncryptCompressTasklet();
-	};
+	}
 
 	@Bean
 	public Tasklet hdfsTasklet() {
 		return new HdfsTasklet();
-	};
+	}
 
 	@Bean
 	public Tasklet unlockTasklet() {
 		return new UnlockTasklet();
-	};
+	}
 
 	// step 1
 	@Bean
