@@ -49,7 +49,7 @@ public class InitializationService {
 
 	// Validate the user provided output path. If it's not provided, the default
 	// folder will be used.
-	public void validateOutputPath() { // throws InitializationException {
+	public void validateOutputPath() {
 		Path outputPath;
 		if (outputDir == null || outputDir.isEmpty()) {
 			outputPath = Paths.get(DEFAULT_OUTPUT_PATH);
@@ -77,7 +77,7 @@ public class InitializationService {
 	// If validation for any of them succeeds, then the initialization succeeds.
 	// If validations for all fail, then the initialization fails.
 	// All failed validations will be logged.
-	public void validateMongoDBs() { // throws InitializationException {
+	public void validateMongoDBs() {
 		InitializationException vex = new InitializationException("Initialization failed.");
 		Map<String, List<String>> databases = metadataService.getDatabases();
 		boolean validated = false;
