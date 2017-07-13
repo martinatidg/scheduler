@@ -17,10 +17,10 @@ public class LockTasklet implements Tasklet {
 	ZooKeeperService zooKeeperService;
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 2: Start Lock tasklet.");
 
-		ExportRequest request = (ExportRequest) arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("request");
+		ExportRequest request = (ExportRequest) chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().get("request");
 		request.setFromTimeStamp(zooKeeperService.getFromTimestamp());
 		request.setToTimeStamp(zooKeeperService.getToTimeStamp());
 		

@@ -93,16 +93,6 @@ public class ExportRequest {
 		this.toTimeStamp = toTimeStamp;
 	}
 
-	public boolean isInValid() {
-		List<String> parameters = new ArrayList<>();
-		parameters.add(hostname);
-		parameters.add(collection);
-		parameters.add(database);
-		parameters.add(requestId);
-		
-		return parameters.contains(null) || parameters.contains("");
-	}
-
 	@Override
 	public String toString() {
 		return "ExportRequest [requestId=" + requestId + ", hostname=" + hostname + ", port=" + port + ", database="

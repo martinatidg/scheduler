@@ -95,7 +95,7 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private void validateExportRequest(ExportRequest er) {
-		if (er == null || er.isInValid()) {
+		if (er == null || er.getHostname() == null || er.getCollection() == null || er.getDatabase() == null || er.getRequestId() == null) {
 			throw new IllegalArgumentException("ExportResult cannot be null or have any of it's variables set to null.");
 		}
 	}

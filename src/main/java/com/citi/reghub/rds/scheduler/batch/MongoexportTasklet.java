@@ -23,10 +23,10 @@ public class MongoexportTasklet implements Tasklet {
 	private SchedulerService schedulerService;
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 3: Start Mongoexport tasklet.");
-		ExecutionContext context = arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		ExportRequest request = (ExportRequest) context.get("request");
+		ExecutionContext executionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		ExportRequest request = (ExportRequest) executionContext.get("request");
 		
 		LOGGER.trace("Step 3: Export request: {}: ", request);
 
@@ -40,7 +40,7 @@ public class MongoexportTasklet implements Tasklet {
 
 		LOGGER.trace("Step 3: Mongoexport response: {} ", exportResponse);
 
-		context.put("response", exportResponse);
+		executionContext.put("response", exportResponse);
 
 		LOGGER.info("Step 3: Mongoexport tasklet was finished.");
 

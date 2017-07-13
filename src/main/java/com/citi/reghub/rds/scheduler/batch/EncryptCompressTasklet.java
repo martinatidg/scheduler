@@ -20,11 +20,11 @@ public class EncryptCompressTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCompressTasklet.class);
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 4: Start Encryption and Compression tasklet.");
 
-		ExecutionContext context = arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		ExportResponse response = (ExportResponse) context.get("response");
+		ExecutionContext executionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		ExportResponse response = (ExportResponse) executionContext.get("response");
 		LOGGER.trace("Step 4: Export response: {}", response);
 		
 		String outputFile = response.getExportPath();
@@ -34,7 +34,7 @@ public class EncryptCompressTasklet implements Tasklet {
 		Path zippath = compressor.compress(outputPath.toString());
 		Util.deleteDirectory(Paths.get(outputFile).getParent().toString());
 
-		context.put("zippedfile", zippath);
+		executionContext.put("zippedfile", zippath);
 
 		LOGGER.info("Step 4: Encryption and Compression tasklet was finished.");
 

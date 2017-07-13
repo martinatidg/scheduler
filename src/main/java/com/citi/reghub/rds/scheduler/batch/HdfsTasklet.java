@@ -16,14 +16,14 @@ public class HdfsTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HdfsTasklet.class);
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 5: Start HDFS tasklet.");
 
-		ExecutionContext context = arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-		ExportResponse response = (ExportResponse) context.get("response");
+		ExecutionContext executionContext = chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
+		ExportResponse response = (ExportResponse) executionContext.get("response");
 		LOGGER.trace("Step 5: Response: {}", response);
 
-		Path zipPath = (Path)context.get("zippath");
+		Path zipPath = (Path)executionContext.get("zippath");
 		LOGGER.info("Step 5: zip file path: {}", zipPath);
 
 		LOGGER.info("Step 5: HDFS tasklet was finished.");

@@ -25,10 +25,10 @@ public class MetadataTasklet implements Tasklet {
 	private int port;
 
 	@Override
-	public RepeatStatus execute(StepContribution arg0, ChunkContext arg1) throws Exception {
+	public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 		LOGGER.info("Step 1: Start Metadata tasklet.");
 
-		JobExecution job = arg1.getStepContext().getStepExecution().getJobExecution();
+		JobExecution job = chunkContext.getStepContext().getStepExecution().getJobExecution();
 		LOGGER.trace("Step 1: id: {}, jobId: {}.", job.getId(), job.getJobId());
 
 		ExportRequest request = new ExportRequest();
