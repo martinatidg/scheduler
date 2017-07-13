@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.util.FileSystemUtils;
+
 public class TestZipDirectory implements TestZip {
 	private Node<String> root;
 	private Path zipPath;
@@ -22,7 +24,7 @@ public class TestZipDirectory implements TestZip {
 	}
 
 	public void clean() throws IOException {
-		deleteFileTree(root);
+		FileSystemUtils.deleteRecursively(root.getPath().toFile());
 		Files.deleteIfExists(zipPath);
 	}
 
@@ -107,25 +109,6 @@ public class TestZipDirectory implements TestZip {
 				createFile(node);
 			}
 		}
-	}
-
-	// delete the directories and files after the test
-	private void deleteFileTree(Node<String> topNode) throws IOException {
-		if (topNode == null) {
-			return;
-		}
-
-		for (Node<String> node : topNode.getChildren()) {
-			if (node.isDirectory()) {
-				Files.createDirectories(node.getPath());
-				if (node.getChildren() != null) {
-					deleteFileTree(node);
-				}
-			}
-			Files.deleteIfExists(node.getPath());
-		}
-
-		Files.deleteIfExists(topNode.getPath());
 	}
 }
 

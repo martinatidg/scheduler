@@ -10,11 +10,11 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.util.FileSystemUtils;
 
 import com.citi.reghub.rds.scheduler.compression.Compressor;
 import com.citi.reghub.rds.scheduler.compression.Compressors;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
-import com.citi.reghub.rds.scheduler.util.Util;
 
 public class EncryptCompressTasklet implements Tasklet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCompressTasklet.class);
@@ -32,7 +32,7 @@ public class EncryptCompressTasklet implements Tasklet {
 
 		Compressor compressor = Compressors.zipCompressor();
 		Path zippath = compressor.compress(outputPath.toString());
-		Util.deleteDirectory(Paths.get(outputFile).getParent().toString());
+		FileSystemUtils.deleteRecursively(Paths.get(outputFile).getParent().toFile());
 
 		executionContext.put("zippedfile", zippath);
 

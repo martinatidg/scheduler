@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import com.citi.reghub.rds.scheduler.export.ExportRequest;
 import com.citi.reghub.rds.scheduler.export.ExportResponse;
 import com.citi.reghub.rds.scheduler.export.ExportService;
-import com.citi.reghub.rds.scheduler.util.Util;
 
 /**
  * @author Martin Tan
@@ -58,7 +58,7 @@ public class InitializationService {
 			outputPath = Paths.get(outputDir);
 		}
 
-		if (!Files.exists(outputPath)) {
+		if (!outputPath.toFile().exists()) {
 			try {
 				Files.createDirectory(outputPath);
 			} catch (IOException e) {
@@ -101,7 +101,7 @@ public class InitializationService {
 		}
 	}
 
-	private void validateOneMongoDB(String db, String collection) throws MongoexportException {
+	private void validateOneMongoDB(String db, String collection) {
 		try {
 
 			ExportRequest request = new ExportRequest();
@@ -122,13 +122,13 @@ public class InitializationService {
 
 			boolean passed = response == null ? false : response.isSuccessful();
 			if (!passed) {
-				throw new MongoexportException("ExportService failed.");
+				throw new InitializationException("ExportService failed.");
 			}
 
 			Path outPath = Paths.get(response.getExportPath()).getParent();
-			Util.deleteDirectory(outPath.toString());
-		} catch (InterruptedException | ExecutionException | IOException e) {
-			throw new MongoexportException(e);
+			FileSystemUtils.deleteRecursively(outPath.toFile());
+		} catch (InterruptedException | ExecutionException e) {
+			throw new InitializationException(e);
 		}
 	}
 }
