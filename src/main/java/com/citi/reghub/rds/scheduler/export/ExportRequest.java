@@ -1,8 +1,6 @@
 package com.citi.reghub.rds.scheduler.export;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import com.citi.reghub.rds.scheduler.util.Util;
 

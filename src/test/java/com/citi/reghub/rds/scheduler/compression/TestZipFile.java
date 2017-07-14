@@ -6,22 +6,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class TestZipFile implements TestZip {
-	private Path filepath;
-	private Path zipPath;
+	private Path sourcePath;
+	private Path destZipPath;
 	private String content = "RDS scheduler test zip a file";
 
-	public TestZipFile(String filename, String zipname) throws IOException {
-		filepath = Paths.get(filename);
-		zipPath = Paths.get(zipname);
+	public TestZipFile(String sourceFile) throws IOException {
+		sourcePath = Paths.get(sourceFile);
+		String destZipFile = sourceFile + ".zip";
+
+		destZipPath = Paths.get(destZipFile);
+	}
+
+	public TestZipFile(String sourceFile, String destZipFile) throws IOException {
+		sourcePath = Paths.get(sourceFile);
+		destZipPath = Paths.get(destZipFile);
 	}
 
 	public void clean() throws IOException {
-		Files.deleteIfExists(filepath);
-		Files.deleteIfExists(zipPath);
+		Files.deleteIfExists(sourcePath);
+		Files.deleteIfExists(destZipPath);
 	}
 
 	public void initialize() throws IOException {
-		Files.createFile(filepath);
-		Files.write(filepath, content.getBytes());
+		Files.createFile(sourcePath);
+		Files.write(sourcePath, content.getBytes());
 	}
 }

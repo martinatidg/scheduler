@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -22,34 +20,51 @@ public class ZipCompressorTest {
 	private TestZipDirectory testDir;
 	private TestZipFile testFile;
 
-	@Before
-	public void init() throws IOException {
+	@Test
+	public void testZipDirectoryWithDest() throws IOException {
 		testDir = new TestZipDirectory(dirname, zipDirname);
-		testDir.clean();
 		testDir.initialize();
 
-		testFile = new TestZipFile(filename, zipFilename);
-		testFile.clean();
-		testFile.initialize();
-	}
-
-	@Test
-	public void testZipDirectory() throws IOException {
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(dirname, zipDirname);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipDirname)));
+
+		testDir.clean();
 	}
 
 	@Test
-	public void testZipFile() throws IOException {
+	public void testZipDirectoryNoDest() throws IOException {
+		testDir = new TestZipDirectory(dirname);
+		testDir.initialize();
+
+		Compressor compressor = Compressors.zipCompressor();
+		compressor.compress(dirname);
+		assertTrue("File not zipped.", Files.exists(Paths.get(zipDirname)));
+
+		testDir.clean();
+	}
+
+	@Test
+	public void testZipFileWithDest() throws IOException {
+		testFile = new TestZipFile(filename, zipFilename);
+		testFile.initialize();
+
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(filename, zipFilename);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
+
+		testFile.clean();
 	}
 
-	@After
-	public void clean() throws IOException {
-		testDir.clean();
+	@Test
+	public void testZipFileNoDest() throws IOException {
+		testFile = new TestZipFile(filename);
+		testFile.initialize();
+
+		Compressor compressor = Compressors.zipCompressor();
+		compressor.compress(filename);
+		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
+
 		testFile.clean();
 	}
 }

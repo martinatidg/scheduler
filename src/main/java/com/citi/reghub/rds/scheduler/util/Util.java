@@ -5,8 +5,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class Util {
-	private Util() throws Exception {
-		throw new Exception("The Util class contains static methods only and cannot be instantiated.");
+	private Util() {
+		throw new UnsupportedOperationException("The Util class contains static methods only and cannot be instantiated.");
 	}
 
 	public static String formatDate(Calendar cal, String pattern) {

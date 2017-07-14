@@ -1,6 +1,5 @@
 package com.citi.reghub.rds.scheduler.export;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
@@ -41,7 +40,13 @@ public class MongoExport implements Callable<ExportResponse> {
 		DB("db"), COLLECTION("collection"), QUERY("query"), JSON_ARRAY("jsonArray"),
 		OUT("out"), USERNAME("username"), PASSWORD("password"), LIMIT("limit");
 
+		private static final String OS_KEY_PREFIX;
 		private String key;
+
+		static {
+			boolean isLinux = !System.getProperty("os.name").toLowerCase().contains("win");
+			OS_KEY_PREFIX = isLinux ? " --" : " /";
+		}
 
 		private Keys(String key) {
 			this.key = key;
@@ -50,12 +55,6 @@ public class MongoExport implements Callable<ExportResponse> {
 		@Override
 		public String toString() {
 			return OS_KEY_PREFIX + key + " ";
-		}
-
-		private static final String OS_KEY_PREFIX = isLinux() ? " --" : " /";
-
-		private static boolean isLinux() {
-			return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0 ? false : true;
 		}
 	}
 
@@ -120,7 +119,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		sb.append(Keys.USERNAME + username);
 		sb.append(Keys.PASSWORD + password);
 
-		LOGGER.info("MongoExport command line: {}", sb.toString());
+		LOGGER.info("MongoExport command line: {}", sb);
 
 		return sb.toString();
 	}
@@ -136,7 +135,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		sb.append(Keys.QUERY + createQueryBetween(exportRequest));
 		sb.append(Keys.OUT + getOutputPath());
 
-		LOGGER.info("MongoExport command line: {}", sb.toString());
+		LOGGER.info("MongoExport command line: {}", sb);
 
 		return sb.toString();
 	}
@@ -157,7 +156,7 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private String getOutputPath() {
-		Path outputPath = Paths.get(this.outputPath, exportRequest.getRequestId(), exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection());
-		return outputPath.toString();
+		String exportFileName = exportRequest.getRequestId() + "." + exportRequest.getDatabase() + "." + exportRequest.getCollection();
+		return Paths.get(this.outputPath, exportRequest.getRequestId(), exportFileName).toString();
 	}
 }

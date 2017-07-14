@@ -11,21 +11,29 @@ import org.springframework.util.FileSystemUtils;
 
 public class TestZipDirectory implements TestZip {
 	private Node<String> root;
-	private Path zipPath;
+	private Path sourcePath;
+	private Path destZipPath;
 
-	public TestZipDirectory(String testDir, String zipDir) throws IOException {
-		root = new Node<String>(Paths.get(testDir), true);
-		zipPath = Paths.get(zipDir);
-		setupDirTree();
+	public TestZipDirectory(String sourceDir) throws IOException {
+		String destZipDir = sourceDir + ".zip";
+		sourcePath = Paths.get(sourceDir);
+		destZipPath = Paths.get(destZipDir);
+	}
+
+	public TestZipDirectory(String sourceDir, String destZipDir) throws IOException {
+		sourcePath = Paths.get(sourceDir);
+		destZipPath = Paths.get(destZipDir);
 	}
 
 	public void initialize() throws IOException {
+		root = new Node<String>(sourcePath, true);
+		setupDirTree();
 		createFileTree(root);
 	}
 
 	public void clean() throws IOException {
 		FileSystemUtils.deleteRecursively(root.getPath().toFile());
-		Files.deleteIfExists(zipPath);
+		Files.deleteIfExists(destZipPath);
 	}
 
 	// setup a in-memory tree structure used to create the directories and files for testing

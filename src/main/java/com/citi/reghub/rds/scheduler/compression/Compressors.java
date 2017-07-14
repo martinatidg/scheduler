@@ -1,11 +1,11 @@
 package com.citi.reghub.rds.scheduler.compression;
 
 public class Compressors {
-    private Compressors() throws Exception {
-        throw new Exception("This class contains static methods only and cannot be instantiated.");
-    }
+	private Compressors() {
+		throw new UnsupportedOperationException("The Util class contains static methods only and cannot be instantiated.");
+	}
 
-    public static Compressor gzipCompressor() {
+	public static Compressor gzipCompressor() {
 		return new GzipCompressor();
 	}
 

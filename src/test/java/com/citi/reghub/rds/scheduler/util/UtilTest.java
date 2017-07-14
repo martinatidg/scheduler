@@ -12,6 +12,7 @@ public class UtilTest {
 	public void testFormatDateDefaultPattern() {
 		Calendar timestamp = new GregorianCalendar(2017, 5, 19, 13, 0, 0);
 		String expected = "Monday June 19 2017 13:00:00.000-0400";
+
 		String actual = Util.formatDate(timestamp);
 		assertEquals("Date format is incorrect.", expected, actual);
 	}
@@ -21,6 +22,7 @@ public class UtilTest {
 		String pattern = "MMMMM dd yyyy HH:mm:ss.SSSZ";
 		Calendar timestamp = new GregorianCalendar(2009, 7, 4, 5, 0, 0);
 		String expected = "August 04 2009 05:00:00.000-0400";
+
 		String actual = Util.formatDate(timestamp, pattern);
 		assertEquals("Date format is incorrect.", expected, actual);
 	
@@ -29,5 +31,15 @@ public class UtilTest {
 		expected = "2009-08-04 05:00:00.000-0400";
 		actual = Util.formatDate(timestamp, pattern);
 		assertEquals("Date format is incorrect.", expected, actual);
+	}
+
+	@Test
+	public void testFormatDateNullCalendar() {
+		String pattern = "";
+		Calendar timestamp = null;
+		String expected = "";
+
+		String actual = Util.formatDate(timestamp, pattern);
+		assertEquals("If calendar is null and date format must be empty.", expected, actual);
 	}
 }

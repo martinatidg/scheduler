@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipCompressor implements Compressor {
+	boolean KEEP_EMPTY_FOLDER = true;	// if true, it will compress/decompress empty folders.
+
 	@Override
 	public Path compress(String sourceFile) throws IOException {
 		String zipFileName = sourceFile + ".zip";
@@ -57,27 +59,24 @@ public class ZipCompressor implements Compressor {
 
 				// to preserve the original structure, create the folder even if it's empty.
 				if (entry.isDirectory() && KEEP_EMPTY_FOLDER) {
-					if (!outputpath.toFile().exists()) {
-						Files.createDirectories(outputpath);
-					}
+					Files.createDirectories(outputpath);
 					continue;
 				}
 
-				Path parentpath = outputpath.getParent();
-				if (!parentpath.toFile().exists()) {
-					Files.createDirectories(parentpath);
-				}
+				Files.createDirectories(outputpath.getParent());
 
 				int size;
 				byte[] buffer = new byte[2048];
 
-				try (FileOutputStream fos = new FileOutputStream(outputpath.toString());
-						BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
-					while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
-						bos.write(buffer, 0, size);
-					}
-					bos.flush();
+				FileOutputStream fos = new FileOutputStream(outputpath.toString());
+				BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
+				while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+					bos.write(buffer, 0, size);
 				}
+
+				bos.flush();
+				fos.close();
+				bos.close();
 			}
 		}
 	}
@@ -104,11 +103,8 @@ public class ZipCompressor implements Compressor {
 	}
 
 	private void zipFolder(String sourceFolder, String destZipFile) throws IOException {
-		ZipOutputStream zip = null;
-		FileOutputStream fileWriter = null;
-
-		fileWriter = new FileOutputStream(destZipFile);
-		zip = new ZipOutputStream(fileWriter);
+		FileOutputStream fileWriter = new FileOutputStream(destZipFile);
+		ZipOutputStream zip = new ZipOutputStream(fileWriter);
 
 		addFolderToZip("", sourceFolder, zip);
 		zip.flush();
