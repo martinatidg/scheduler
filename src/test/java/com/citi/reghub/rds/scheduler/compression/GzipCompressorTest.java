@@ -1,40 +1,41 @@
 package com.citi.reghub.rds.scheduler.compression;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.citi.reghub.rds.scheduler.compression.Compressor;
-import com.citi.reghub.rds.scheduler.compression.Compressors;
-
 @SpringBootTest
 public class GzipCompressorTest {
-	String filename = TestZip.TESTPATH + File.separator + "gzipFileTest";
-	String zipFilename = TestZip.TESTPATH + File.separator + "gzipFileTest.zip";
+	String sourceFile = TestZip.TESTPATH + File.separator + "gzipFileTest";
+	String destZipFile = TestZip.TESTPATH + File.separator + "gzipFileTest.gzip";
 	TestZipFile testFile;
 
-	@Before
-	public void init() throws IOException {
-		testFile = new TestZipFile(filename, zipFilename);
-		testFile.clean();
-		testFile.initialize();
+	@Test
+	public void testCompressWithDest() throws IOException {
+		testFile = new TestZipFile();
+		testFile.createTextFile(sourceFile, destZipFile);
+
+		Compressor compressor = Compressors.gzipCompressor();
+		Path zipPath = compressor.compress(sourceFile, destZipFile);
+		
+		assertTrue("File not zipped.", zipPath.toFile().exists());
 	}
 
 	@Test
-	public void testZip1() throws IOException {
-		Compressor compressor = Compressors.gzipCompressor();
+	public void testCompressNoDest() throws IOException {
+		testFile = new TestZipFile();
+		testFile.createTextFile(sourceFile, FileType.GZIP);
 
-		compressor.compress(filename, zipFilename);
+		Compressor compressor = Compressors.gzipCompressor();
+		Path zipPath = compressor.compress(sourceFile);
 		
-		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
+		assertTrue("File not zipped.", zipPath.toFile().exists());
 	}
 
 	@After

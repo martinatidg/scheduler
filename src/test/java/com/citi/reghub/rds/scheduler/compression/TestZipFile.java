@@ -8,18 +8,24 @@ import java.nio.file.Paths;
 public class TestZipFile implements TestZip {
 	private Path sourcePath;
 	private Path destZipPath;
-	private String content = "RDS scheduler test zip a file";
+	private String content = "RDS scheduler test zip a file.";
 
-	public TestZipFile(String sourceFile) throws IOException {
+	public Path createTextFile(String sourceFile, FileType type) throws IOException {
 		sourcePath = Paths.get(sourceFile);
-		String destZipFile = sourceFile + ".zip";
+		destZipPath = Paths.get(type.appendExtension(sourceFile));
+		Files.createFile(sourcePath);
+		Files.write(sourcePath, content.getBytes());
 
-		destZipPath = Paths.get(destZipFile);
+		return destZipPath;
 	}
 
-	public TestZipFile(String sourceFile, String destZipFile) throws IOException {
+	public Path createTextFile(String sourceFile, String destZipFile) throws IOException {
 		sourcePath = Paths.get(sourceFile);
 		destZipPath = Paths.get(destZipFile);
+		Files.createFile(sourcePath);
+		Files.write(sourcePath, content.getBytes());
+
+		return destZipPath;
 	}
 
 	public void clean() throws IOException {
@@ -27,8 +33,14 @@ public class TestZipFile implements TestZip {
 		Files.deleteIfExists(destZipPath);
 	}
 
-	public void initialize() throws IOException {
+	public Path createZipFile(String sourceFile) throws IOException {
+		sourcePath = Paths.get(sourceFile);
 		Files.createFile(sourcePath);
 		Files.write(sourcePath, content.getBytes());
+
+		Compressor compressor = Compressors.zipCompressor();
+		destZipPath = compressor.compress(sourceFile);
+
+		return destZipPath;
 	}
 }

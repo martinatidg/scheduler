@@ -5,8 +5,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,8 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class ZipCompressorTest {
 	private String dirname = TestZip.TESTPATH + File.separator + "dirTest";
 	private String zipDirname = TestZip.TESTPATH + File.separator + "dirTest.zip";
-	private String filename = TestZip.TESTPATH + File.separator + "zipFileTest";
-	private String zipFilename = TestZip.TESTPATH + File.separator + "zipFileTest.zip";
+	private String filename = TestZip.TESTPATH + File.separator + "fileTest";
+	private String zipFilename = TestZip.TESTPATH + File.separator + "fileTest.zip";
+	private String testdecompression = TestZip.TESTPATH + File.separator + "testdecompression";
 
 	private TestZipDirectory testDir;
 	private TestZipFile testFile;
@@ -28,8 +31,6 @@ public class ZipCompressorTest {
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(dirname, zipDirname);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipDirname)));
-
-		testDir.clean();
 	}
 
 	@Test
@@ -40,31 +41,48 @@ public class ZipCompressorTest {
 		Compressor compressor = Compressors.zipCompressor();
 		compressor.compress(dirname);
 		assertTrue("File not zipped.", Files.exists(Paths.get(zipDirname)));
-
-		testDir.clean();
 	}
 
 	@Test
 	public void testZipFileWithDest() throws IOException {
-		testFile = new TestZipFile(filename, zipFilename);
-		testFile.initialize();
+		testFile = new TestZipFile();
+		testFile.createTextFile(filename, zipFilename);
 
 		Compressor compressor = Compressors.zipCompressor();
-		compressor.compress(filename, zipFilename);
-		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
+		Path zipPath = compressor.compress(filename, zipFilename);
 
-		testFile.clean();
+		assertTrue("File not zipped.", zipPath.toFile().exists());
 	}
 
 	@Test
 	public void testZipFileNoDest() throws IOException {
-		testFile = new TestZipFile(filename);
-		testFile.initialize();
+		testFile = new TestZipFile();
+		testFile.createTextFile(filename, FileType.ZIP);
 
 		Compressor compressor = Compressors.zipCompressor();
-		compressor.compress(filename);
-		assertTrue("File not zipped.", Files.exists(Paths.get(zipFilename)));
+		Path zipPath = compressor.compress(filename);
+		assertTrue("File not zipped.", zipPath.toFile().exists());
+	}
 
-		testFile.clean();
+	@Test
+	public void testDecompressFile() throws IOException {
+		testFile = new TestZipFile();
+		Path zipPath = testFile.createZipFile(testdecompression);
+
+		Compressor compressor = Compressors.zipCompressor();
+		Path decompressedPath = compressor.decompress(zipPath.toString());
+
+		assertTrue("File not zipped.", decompressedPath.toFile().exists());
+	}
+
+	@After
+	public void clean() throws IOException {
+		if (testFile != null) {
+			testFile.clean();
+		}
+
+		if (testDir != null) {
+			testDir.clean();
+		}
 	}
 }

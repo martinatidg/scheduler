@@ -6,6 +6,6 @@ import java.nio.file.Path;
 public interface Compressor {
 	Path compress(String sourceFile) throws IOException;
 	Path compress(String sourceFile, String destZipFile) throws IOException;
-	void decompress(String sourceZipFile) throws IOException;
-	void decompress(String sourceZipFile, String destUnzipDir) throws IOException;
+	Path decompress(String sourceZipFile) throws IOException;
+	Path decompress(String sourceZipFile, String destUnzipDir) throws IOException;
 }

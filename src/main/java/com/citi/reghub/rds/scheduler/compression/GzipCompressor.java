@@ -10,13 +10,13 @@ import java.util.zip.GZIPOutputStream;
 public class GzipCompressor implements Compressor {
 
 	@Override
-	public void decompress(String zipFilePath) throws IOException {
+	public Path decompress(String zipFilePath) throws IOException {
 		// Implementation not available for this version
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void decompress(String zipFilePath, String filePath) throws IOException {
+	public Path decompress(String zipFilePath, String filePath) throws IOException {
 		// Implementation not available for this version
 		throw new UnsupportedOperationException();
 	}

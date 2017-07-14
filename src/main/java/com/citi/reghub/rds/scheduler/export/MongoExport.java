@@ -116,10 +116,12 @@ public class MongoExport implements Callable<ExportResponse> {
 		sb.append(Keys.QUERY + createQueryBetween(exportRequest));
 		sb.append(Keys.JSON_ARRAY);
 		sb.append(Keys.OUT + getOutputPath());
+
+		LOGGER.info("MongoExport command line: {}", sb);
+
 		sb.append(Keys.USERNAME + username);
 		sb.append(Keys.PASSWORD + password);
 
-		LOGGER.info("MongoExport command line: {}", sb);
 
 		return sb.toString();
 	}

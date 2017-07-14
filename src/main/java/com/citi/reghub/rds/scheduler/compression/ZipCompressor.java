@@ -17,7 +17,9 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipCompressor implements Compressor {
-	boolean KEEP_EMPTY_FOLDER = true;	// if true, it will compress/decompress empty folders.
+	private boolean keepEmptyFolder = true; // if true, it will
+											// compress/decompress empty
+											// folders.
 
 	@Override
 	public Path compress(String sourceFile) throws IOException {
@@ -43,41 +45,49 @@ public class ZipCompressor implements Compressor {
 	}
 
 	@Override
-	public void decompress(String sourceZipFile) throws IOException {
+	public Path decompress(String sourceZipFile) throws IOException {
 		Path destUnzipDirPath = Paths.get(sourceZipFile).getParent();
 		decompress(sourceZipFile, destUnzipDirPath.toString());
+
+		return destUnzipDirPath;
 	}
 
 	@Override
-	public void decompress(String sourceZipFile, String destUnzipDir) throws IOException {
+	public Path decompress(String sourceZipFile, String destUnzipDir) throws IOException {
 		try (FileInputStream fis = new FileInputStream(sourceZipFile);
 				ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis))) {
 			ZipEntry entry;
 
 			while ((entry = zis.getNextEntry()) != null) {
-				Path outputpath = Paths.get(destUnzipDir, entry.getName());
+				Path destPath = Paths.get(destUnzipDir, entry.getName());
 
-				// to preserve the original structure, create the folder even if it's empty.
-				if (entry.isDirectory() && KEEP_EMPTY_FOLDER) {
-					Files.createDirectories(outputpath);
+				// to preserve the original structure, create the folder even if
+				// it's empty.
+				if (entry.isDirectory() && keepEmptyFolder) {
+					Files.createDirectories(destPath);
 					continue;
 				}
 
-				Files.createDirectories(outputpath.getParent());
+				Files.createDirectories(destPath.getParent());
+				dezipFile(destPath, zis);
 
-				int size;
-				byte[] buffer = new byte[2048];
-
-				FileOutputStream fos = new FileOutputStream(outputpath.toString());
-				BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length);
-				while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
-					bos.write(buffer, 0, size);
-				}
-
-				bos.flush();
-				fos.close();
-				bos.close();
 			}
+		}
+
+		return Paths.get(destUnzipDir);
+	}
+
+	private void dezipFile(Path path, ZipInputStream zis) throws IOException {
+		int size;
+		byte[] buffer = new byte[2048];
+
+		try (FileOutputStream fos = new FileOutputStream(path.toString());
+				BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
+			while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+				bos.write(buffer, 0, size);
+			}
+
+			bos.flush();
 		}
 	}
 
@@ -119,8 +129,8 @@ public class ZipCompressor implements Compressor {
 			addFolderToZip(parentDir, sourceFile, zip);
 
 			// to preserve the original structure, include the folder even if it's empty.
-			if (folder.list().length < 1 && KEEP_EMPTY_FOLDER) {
-				zip.putNextEntry(new ZipEntry(fpath.toString() + "/")); // need '/' to create a directory
+			if (folder.list().length < 1 && keepEmptyFolder) {
+				zip.putNextEntry(new ZipEntry(fpath.toString() + "/")); // use '/' to create a directory
 			}
 		} else {
 			byte[] buf = new byte[1024];
@@ -137,21 +147,29 @@ public class ZipCompressor implements Compressor {
 	private void addFolderToZip(String parentDir, String sourceFolder, ZipOutputStream zip) throws IOException {
 		Path fpath = Paths.get(sourceFolder);
 
-		DirectoryStream<Path> pstream = Files.newDirectoryStream(fpath);
+		try (DirectoryStream<Path> pstream = Files.newDirectoryStream(fpath)) {
 
-		for (Path p : pstream) {
-			Path relDir = Paths.get(sourceFolder, p.getFileName().toString());
-			Path baseDir;
+			for (Path p : pstream) {
+				Path relDir = Paths.get(sourceFolder, p.getFileName().toString());
+				Path baseDir;
 
-			if (parentDir == null || parentDir.trim().isEmpty()) {
-				baseDir = fpath.getFileName();
-			} else {
-				baseDir = Paths.get(parentDir, fpath.getFileName().toString());
+				if (parentDir == null || parentDir.trim().isEmpty()) {
+					baseDir = fpath.getFileName();
+				} else {
+					baseDir = Paths.get(parentDir, fpath.getFileName().toString());
+				}
+
+				addFileToZip(baseDir.toString(), relDir.toString(), zip);
 			}
-
-			addFileToZip(baseDir.toString(), relDir.toString(), zip);
 		}
-
-		pstream.close();
 	}
+
+	public boolean isKeepEmptyFolder() {
+		return keepEmptyFolder;
+	}
+
+	public void setKeepEmptyFolder(boolean keepEmptyFolder) {
+		this.keepEmptyFolder = keepEmptyFolder;
+	}
+
 }
