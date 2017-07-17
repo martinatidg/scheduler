@@ -31,7 +31,7 @@ import com.citi.reghub.rds.scheduler.export.ExportService;
 @Service
 public class InitializationService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializationService.class);
-	private static final String DEFAULT_OUTPUT_PATH = System.getProperty("user.home") + File.separator + "rds";
+	static final String DEFAULT_OUTPUT_PATH = System.getProperty("user.home") + File.separator + "rds";
 
 	@Autowired
 	private MetadataService metadataService;
