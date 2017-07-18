@@ -36,9 +36,9 @@ public class MongoExport implements Callable<ExportResponse> {
 
 	enum Keys {
 		HOST("host"), PORT("port"), SSL("ssl"), SAIC("sslAllowInvalidCertificates"),
-		AUTH_DB("authenticationDatabase"), AUTH_MSM("authenticationMechanism"), 
-		DB("db"), COLLECTION("collection"), QUERY("query"), JSON_ARRAY("jsonArray"),
-		OUT("out"), USERNAME("username"), PASSWORD("password"), LIMIT("limit");
+		AUTH_DB("authenticationDatabase"), AUTH_MSM("authenticationMechanism"), DB("db"),
+		COLLECTION("collection"), QUERY("query"), JSON_ARRAY("jsonArray"), OUT("out"),
+		USERNAME("username"), PASSWORD("password"), LIMIT("limit");
 
 		private static final String OS_KEY_PREFIX;
 		private String key;
@@ -68,8 +68,7 @@ public class MongoExport implements Callable<ExportResponse> {
 		String cmd = binaryPath;
 		if (exportRequest.getHostname().contains("localhost")) {
 			cmd += " " + getLocalCommandLineKeys();
-		}
-		else {
+		} else {
 			cmd += " " + getCommandLineKeys();
 		}
 
@@ -84,7 +83,8 @@ public class MongoExport implements Callable<ExportResponse> {
 
 		response.setExportPath(getOutputPath());
 		response.setSuccessful(result.isCompleteSuccessfully());
-		response.setLastMessage(result.getError().stream().skip(result.getError().size() - 1).findFirst().orElse("--"));
+		response.setLastMessage(
+				result.getError().stream().skip((long) result.getError().size() - 1).findFirst().orElse("--"));
 
 		if (response.isSuccessful()) {
 			response.setRecords(response.getLastMessage().split(" ")[1]);
@@ -94,7 +94,16 @@ public class MongoExport implements Callable<ExportResponse> {
 	}
 
 	private void validateExportRequest(ExportRequest er) {
-		if (er == null || er.getHostname() == null || er.getCollection() == null || er.getDatabase() == null || er.getRequestId() == null) {
+		boolean inValid;
+
+		if (er == null) {
+			throw new IllegalArgumentException("ExportResult cannot be null or have any of it's variables set to null.");
+		} else {
+			inValid = er.getHostname() == null || er.getCollection() == null;
+			inValid = inValid || er.getDatabase() == null || er.getRequestId() == null;
+		}
+
+		if (inValid) {
 			throw new IllegalArgumentException("ExportResult cannot be null or have any of it's variables set to null.");
 		}
 	}
@@ -121,7 +130,6 @@ public class MongoExport implements Callable<ExportResponse> {
 
 		sb.append(Keys.USERNAME + username);
 		sb.append(Keys.PASSWORD + password);
-
 
 		return sb.toString();
 	}
